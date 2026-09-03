@@ -1,0 +1,15 @@
+export const AEGIS_PHASE_2_STATE = Object.freeze({
+  lifecycle: 'DORMANT_SEED',
+  runtimeConnected: false,
+  liveTelemetry: false,
+  networkAccess: false,
+  secretsAccess: false,
+  firebaseAdminAccess: false,
+  canvasTokenAccess: false,
+  geminiSecretAccess: false,
+  deploymentAuthority: false,
+  ownerRootActive: false,
+  automationEnabled: false,
+  enforcementEnabled: false,
+  remediationEnabled: false,
+} as const);

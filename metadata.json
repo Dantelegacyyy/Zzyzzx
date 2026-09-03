@@ -1,0 +1,6 @@
+{
+  "name": "Cerebro",
+  "description": "An AI-powered academic workspace that turns a student's entire learning environment into one organized, intelligent system. Protected by AEGIS Guardian.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
