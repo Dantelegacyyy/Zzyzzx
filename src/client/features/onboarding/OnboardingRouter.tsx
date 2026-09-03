@@ -30,7 +30,7 @@ export function OnboardingRouterContent({
     // Mocking auth check without Firebase
     const checkAuth = async () => {
       setLoading(false);
-      const isComplete = localStorage.getItem('onboardingStarted') === 'true';
+      const isComplete = false;
       if (isComplete) {
         setStep((prev: import('./onboardingTypes').OnboardingStep) => {
           if (STEPS.indexOf(prev as any) <= STEPS.indexOf('ACCOUNT')) {

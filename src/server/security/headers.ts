@@ -8,7 +8,6 @@ export function frameAncestorsFor(aiStudioPreview: boolean): string[] {
 }
 
 export function securityHeaders() {
-  console.log('ALLOW_PREVIEW:', ENV.AI_STUDIO_PREVIEW_EMBED);
   const allowAiStudioPreview = ENV.AI_STUDIO_PREVIEW_EMBED;
 
   return helmet({
@@ -18,37 +17,31 @@ export function securityHeaders() {
           action: 'sameorigin',
         },
 
+    strictTransportSecurity: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-
         baseUri: ["'self'"],
-
         objectSrc: ["'none'"],
-
         frameAncestors: frameAncestorsFor(allowAiStudioPreview),
-
         scriptSrc:
           process.env.NODE_ENV === 'production'
             ? ["'self'"]
             : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-
         scriptSrcAttr: ["'none'"],
-
         styleSrc: ["'self'", "'unsafe-inline'"],
-
         imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-
         fontSrc: ["'self'", 'data:', 'https:'],
-
         connectSrc: [
           "'self'",
-          'https://identitytoolkit.googleapis.com',
-          'https://securetoken.googleapis.com',
-          'https://*.googleapis.com',
-          'https://*.firebaseio.com',
+          'https://generativelanguage.googleapis.com',
+          'https://canvas.instructure.com',
         ],
-
         formAction: ["'self'"],
       },
     },
@@ -62,5 +55,7 @@ export function securityHeaders() {
     },
 
     xContentTypeOptions: true,
+    dnsPrefetchControl: { allow: false },
+    hidePoweredBy: true,
   });
 }

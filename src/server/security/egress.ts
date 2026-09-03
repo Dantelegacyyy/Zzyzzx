@@ -3,9 +3,6 @@ export class DestinationRegistry {
   static allowedDomains = new Set([
     'generativelanguage.googleapis.com',
     'canvas.instructure.com',
-    'firebasestorage.googleapis.com',
-    'identitytoolkit.googleapis.com',
-    'securetoken.googleapis.com',
   ]);
 
   static isAllowed(domain: string) {
@@ -16,7 +13,6 @@ export class DestinationRegistry {
 export class EgressBudget {
   static maxRequestsPerMinute = 100;
   static currentRequests = 0;
-  // simple token bucket for phase 2
 }
 
 export class SsrfGuard {

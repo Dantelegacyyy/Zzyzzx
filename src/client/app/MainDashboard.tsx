@@ -10,8 +10,12 @@ import {
 import { CoursesView } from '../pages/components/CoursesView';
 import { NotesView } from '../pages/components/NotesView';
 import { SettingsView } from '../pages/components/SettingsView';
+import { DbHealthDashboard } from '../pages/components/DbHealthDashboard';
+import { ApiLogsView } from '../pages/components/ApiLogsView';
+import { CustomAiInterface } from '../pages/components/CustomAiInterface';
+import { OnboardingGallery } from '../pages/components/OnboardingGallery';
 import { ToastProvider } from '../components/Toast';
-import { Home, BookOpen, FileText, Settings, Search, Plus } from 'lucide-react';
+import { Home, BookOpen, FileText, Settings, Search, Plus, Shield, Zap, Book, ArrowRight, Brain, Activity, Database, Layers } from 'lucide-react';
 
 const Aperture = () => (
   <div className="min-h-screen bg-[#050B14] flex flex-col items-center justify-center relative overflow-hidden">
@@ -34,7 +38,7 @@ const DashboardHome = () => (
       <div className="relative z-10">
         <h2 className="text-3xl font-bold text-white mb-2">Good morning.</h2>
         <p className="text-slate-400 mb-6">What are you working on today?</p>
-        <div className="flex gap-4 max-w-2xl">
+        <div className="flex gap-4 max-w-2xl mb-8">
           <div className="flex-1 relative">
             <Search
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
@@ -51,26 +55,89 @@ const DashboardHome = () => (
             <span>Add</span>
           </button>
         </div>
+        
+        {/* Quick Actions */}
+        <div className="flex gap-3 flex-wrap">
+          <button className="bg-slate-800/50 hover:bg-cyan-900/40 border border-slate-700 hover:border-cyan-700 text-slate-300 py-2 px-4 rounded-full text-sm font-medium transition-all flex items-center gap-2">
+            <Zap size={16} className="text-yellow-500" /> Quick Sync Canvas
+          </button>
+          <button className="bg-slate-800/50 hover:bg-cyan-900/40 border border-slate-700 hover:border-cyan-700 text-slate-300 py-2 px-4 rounded-full text-sm font-medium transition-all flex items-center gap-2">
+            <FileText size={16} className="text-cyan-400" /> New Note
+          </button>
+          <button className="bg-slate-800/50 hover:bg-cyan-900/40 border border-slate-700 hover:border-cyan-700 text-slate-300 py-2 px-4 rounded-full text-sm font-medium transition-all flex items-center gap-2">
+            <BookOpen size={16} className="text-blue-400" /> Browse Courses
+          </button>
+        </div>
       </div>
     </section>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <section>
-        <h3 className="text-lg font-medium text-slate-300 mb-4 border-b border-slate-800 pb-2">
-          Continue
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* AEGIS Status Logging */}
+      <section className="md:col-span-1">
+        <h3 className="text-lg font-medium text-slate-300 mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">
+          <Shield size={20} className="text-cyan-500" /> AEGIS Status
         </h3>
-        <div className="bg-[#0A111F] rounded-xl border border-slate-800 p-6 flex flex-col items-center justify-center text-slate-500 min-h-[120px]">
-          <BookOpen size={24} className="mb-2 opacity-50" />
-          <span className="text-sm">Your recent work will appear here.</span>
+        <div className="bg-[#0A111F] rounded-xl border border-slate-800 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm text-slate-400">System Integrity</span>
+            <span className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">100% SECURE</span>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 text-sm">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="flex-1">
+                <p className="text-slate-300">Cloud SQL (PostgreSQL)</p>
+                <p className="text-xs text-slate-500">Instance active in us-west2</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 text-sm">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-cyan-500" />
+              <div className="flex-1">
+                <p className="text-slate-300">Firebase Auth & Tokens</p>
+                <p className="text-xs text-slate-500">OAuth & Admin SDK verified</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 text-sm">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500" />
+              <div className="flex-1">
+                <p className="text-slate-300">Drizzle ORM & Schema</p>
+                <p className="text-xs text-slate-500">PostgreSQL tables active</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-      <section>
-        <h3 className="text-lg font-medium text-slate-300 mb-4 border-b border-slate-800 pb-2">
-          Next
+
+      {/* Knowledge Base */}
+      <section className="md:col-span-2">
+        <h3 className="text-lg font-medium text-slate-300 mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">
+          <Book size={20} className="text-purple-400" /> Knowledge Base
         </h3>
-        <div className="bg-[#0A111F] rounded-xl border border-slate-800 p-6 flex flex-col items-center justify-center text-slate-500 min-h-[120px]">
-          <FileText size={24} className="mb-2 opacity-50" />
-          <span className="text-sm">Nothing urgent yet.</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-[#0A111F] hover:bg-slate-800/50 transition-colors cursor-pointer rounded-xl border border-slate-800 p-5 group">
+            <h4 className="text-slate-200 font-medium mb-1 group-hover:text-cyan-400 transition-colors flex items-center justify-between">
+              Getting Started Guide <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h4>
+            <p className="text-xs text-slate-500">Learn the basics of Cerebro workspace and command inputs.</p>
+          </div>
+          <div className="bg-[#0A111F] hover:bg-slate-800/50 transition-colors cursor-pointer rounded-xl border border-slate-800 p-5 group">
+            <h4 className="text-slate-200 font-medium mb-1 group-hover:text-cyan-400 transition-colors flex items-center justify-between">
+              Canvas Integrations <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h4>
+            <p className="text-xs text-slate-500">Troubleshoot your LMS syncing and assignments.</p>
+          </div>
+          <div className="bg-[#0A111F] hover:bg-slate-800/50 transition-colors cursor-pointer rounded-xl border border-slate-800 p-5 group">
+            <h4 className="text-slate-200 font-medium mb-1 group-hover:text-cyan-400 transition-colors flex items-center justify-between">
+              Smart Notes <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h4>
+            <p className="text-xs text-slate-500">How to use AI generation within your documents.</p>
+          </div>
+          <div className="bg-[#0A111F] hover:bg-slate-800/50 transition-colors cursor-pointer rounded-xl border border-slate-800 p-5 group">
+            <h4 className="text-slate-200 font-medium mb-1 group-hover:text-cyan-400 transition-colors flex items-center justify-between">
+              System Architecture <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h4>
+            <p className="text-xs text-slate-500">Deep dive into the AEGIS security framework.</p>
+          </div>
         </div>
       </section>
     </div>
@@ -84,6 +151,18 @@ const AppNavigation = () => {
   const navItems = [
     { id: 'home', label: 'Home', path: '/', icon: <Home size={20} /> },
     {
+      id: 'ai-curation',
+      label: 'AI Dashboard (Screen 13)',
+      path: '/ai-curation',
+      icon: <Brain size={20} />,
+    },
+    {
+      id: 'onboarding-gallery',
+      label: '13-Screen Showcase',
+      path: '/onboarding-gallery',
+      icon: <Layers size={20} />,
+    },
+    {
       id: 'courses',
       label: 'Courses',
       path: '/courses',
@@ -94,6 +173,18 @@ const AppNavigation = () => {
       label: 'Notes',
       path: '/notes',
       icon: <FileText size={20} />,
+    },
+    {
+      id: 'db-health',
+      label: 'Database Health',
+      path: '/db-health',
+      icon: <Database size={20} />,
+    },
+    {
+      id: 'api-logs',
+      label: 'API Connection Logs',
+      path: '/api-logs',
+      icon: <Activity size={20} />,
     },
     {
       id: 'settings',
@@ -115,21 +206,22 @@ const AppNavigation = () => {
               C
             </span>
           </div>
-          <nav className="mt-8 flex flex-col gap-2 px-3">
+
+          <nav className="mt-6 flex flex-col gap-1.5 px-3">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-xs lg:text-sm ${
                   location.pathname === item.path
-                    ? 'bg-cyan-900/20 text-cyan-400 border border-cyan-900/50'
+                    ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-800/60 font-semibold shadow-md'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
                 }`}
               >
                 <div className="flex items-center justify-center flex-shrink-0">
                   {item.icon}
                 </div>
-                <span className="hidden lg:block font-medium">
+                <span className="hidden lg:block font-medium truncate">
                   {item.label}
                 </span>
               </button>
@@ -150,8 +242,12 @@ const AppNavigation = () => {
           <div className="max-w-6xl mx-auto relative z-10">
             <Routes>
               <Route path="/" element={<DashboardHome />} />
+              <Route path="/ai-curation" element={<CustomAiInterface />} />
+              <Route path="/onboarding-gallery" element={<OnboardingGallery />} />
               <Route path="/courses" element={<CoursesView />} />
               <Route path="/notes" element={<NotesView />} />
+              <Route path="/db-health" element={<DbHealthDashboard />} />
+              <Route path="/api-logs" element={<ApiLogsView />} />
               <Route path="/settings" element={<SettingsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -169,7 +265,7 @@ export function MainDashboard() {
     // Simulating initial load time for Cerebro Core
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    }, 800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -183,3 +279,4 @@ export function MainDashboard() {
     </ToastProvider>
   );
 }
+

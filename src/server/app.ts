@@ -9,10 +9,68 @@ import rateLimit from 'express-rate-limit';
 import { canvasRoutes } from './academic/canvasRoutes.js';
 import { aiRoutes } from './ai/routes.js';
 import { uploadRoutes } from './ingestion/uploadRoutes.js';
+import { workspaceRoutes } from './routes/workspaceRoutes.js';
 import { generateStabilityReport } from './utils/stability.js';
+import { checkDatabaseConnection } from '../db/index.js';
+import { runMigrations } from '../db/migrate.js';
+
+export interface ApiLogEntry {
+  id: string;
+  timestamp: string;
+  method: string;
+  path: string;
+  statusCode: number;
+  durationMs: number;
+  clientIp: string;
+  statusText: string;
+}
+
+const apiLogsBuffer: ApiLogEntry[] = [];
+const MAX_LOGS = 100;
+
+export function addApiLog(entry: Omit<ApiLogEntry, 'id'>) {
+  const log: ApiLogEntry = {
+    ...entry,
+    id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+  };
+  apiLogsBuffer.unshift(log);
+  if (apiLogsBuffer.length > MAX_LOGS) {
+    apiLogsBuffer.pop();
+  }
+}
 
 const app = express();
 app.use(assignRequestId);
+
+// API Connection Logger Middleware
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  const path = req.path;
+  const method = req.method;
+
+  res.on('finish', () => {
+    if (path.startsWith('/api')) {
+      const durationMs = Date.now() - startTime;
+      const statusCode = res.statusCode;
+      let statusText = 'OK';
+      if (statusCode >= 400 && statusCode < 500) statusText = 'Client Error';
+      else if (statusCode >= 500) statusText = 'Server Error';
+
+      addApiLog({
+        timestamp: new Date().toISOString(),
+        method,
+        path,
+        statusCode,
+        durationMs,
+        clientIp: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1',
+        statusText,
+      });
+    }
+  });
+
+  next();
+});
+
 app.use(securityHeaders());
 app.use(
   cors({
@@ -35,6 +93,28 @@ app.use('/api', globalLimiter);
 app.use('/api/canvas', canvasRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/workspace', workspaceRoutes);
+
+app.get('/api/logs', (req, res) => {
+  res.json({
+    total: apiLogsBuffer.length,
+    logs: apiLogsBuffer,
+  });
+});
+
+app.get('/api/db/health', async (req, res) => {
+  const dbHealth = await checkDatabaseConnection();
+  res.status(dbHealth.connected ? 200 : 500).json(dbHealth);
+});
+
+app.post('/api/db/migrate', async (req, res) => {
+  try {
+    const result = await runMigrations();
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Migration failed' });
+  }
+});
 
 app.get('/api/debug-env', (req, res) =>
   res.json({

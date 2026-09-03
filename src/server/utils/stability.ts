@@ -1,10 +1,11 @@
 import { GoogleGenAI } from '@google/genai';
 import { ENV } from '../config/env.js';
+import { checkDatabaseConnection } from '../../db/index.js';
 
 export interface StabilityReport {
   timestamp: string;
   services: {
-    firestore: { status: 'OK' | 'ERROR'; latencyMs?: number; error?: string };
+    cloudsql: { status: 'OK' | 'ERROR'; latencyMs?: number; version?: string; error?: string };
     gemini: { status: 'OK' | 'ERROR'; latencyMs?: number; error?: string };
     canvas: { status: 'OK' | 'ERROR'; latencyMs?: number; error?: string };
   };
@@ -15,19 +16,31 @@ export async function generateStabilityReport(): Promise<StabilityReport> {
   const report: StabilityReport = {
     timestamp: new Date().toISOString(),
     services: {
-      firestore: { status: 'ERROR' },
+      cloudsql: { status: 'ERROR' },
       gemini: { status: 'ERROR' },
       canvas: { status: 'ERROR' },
     },
     overall: 'DOWN',
   };
 
-  // 1. Mock Firestore
-  const fsStart = Date.now();
-  report.services.firestore = {
-    status: 'OK',
-    latencyMs: 5,
-  };
+  // 1. Check Cloud SQL (PostgreSQL)
+  try {
+    const dbCheck = await checkDatabaseConnection();
+    if (dbCheck.connected) {
+      report.services.cloudsql = {
+        status: 'OK',
+        latencyMs: dbCheck.latencyMs,
+        ...(dbCheck.version ? { version: dbCheck.version } : {}),
+      };
+    } else {
+      report.services.cloudsql = {
+        status: 'ERROR',
+        error: dbCheck.error || 'Database disconnected',
+      };
+    }
+  } catch (err: any) {
+    report.services.cloudsql = { status: 'ERROR', error: err.message };
+  }
 
   // 2. Check Gemini
   try {
@@ -39,7 +52,6 @@ export async function generateStabilityReport(): Promise<StabilityReport> {
       };
     } else {
       const ai = new GoogleGenAI({ apiKey: ENV.GEMINI_API_KEY });
-      // Fetch a known model to verify API key and network
       await ai.models.get({ model: 'gemini-2.5-flash' });
       report.services.gemini = {
         status: 'OK',
@@ -56,7 +68,6 @@ export async function generateStabilityReport(): Promise<StabilityReport> {
     const res = await fetch('https://canvas.instructure.com/api/v1/courses', {
       method: 'GET',
     });
-    // Even if 401 Unauthorized, it means the API is reachable
     if (res.status === 401 || res.ok) {
       report.services.canvas = {
         status: 'OK',
@@ -74,7 +85,7 @@ export async function generateStabilityReport(): Promise<StabilityReport> {
 
   // Overall status
   const statuses = [
-    report.services.firestore.status,
+    report.services.cloudsql.status,
     report.services.gemini.status,
     report.services.canvas.status,
   ];
