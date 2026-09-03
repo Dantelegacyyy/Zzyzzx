@@ -55,6 +55,24 @@ aiRoutes.post('/curate-dashboard', async (req, res) => {
   }
 });
 
+aiRoutes.post('/theme-preference', async (req, res) => {
+  try {
+    const userId = req.principal?.subjectId || req.body.userId || 'usr_commander';
+    const email = req.principal?.email || req.body.email || 'commander@cerebro.edu';
+    const { themeColor } = req.body;
+
+    if (!themeColor) {
+      return res.status(400).json({ error: 'themeColor is required' });
+    }
+
+    const result = await AIDashboardService.persistUserThemePreference(userId, themeColor, email);
+    res.json(result);
+  } catch (error: any) {
+    console.error('Theme preference route error:', error);
+    res.status(500).json({ error: 'Failed to persist theme preference' });
+  }
+});
+
 aiRoutes.get('/design-library/layouts', (req, res) => {
   const query = (req.query.q as string) || '';
   const layouts = query

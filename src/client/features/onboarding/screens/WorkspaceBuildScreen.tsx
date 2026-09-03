@@ -1,80 +1,74 @@
 import React, { useEffect, useState } from 'react';
 import { OnboardingFrame } from '../components/OnboardingFrame';
-import { PrimaryAction } from '../components/PrimaryAction';
+import { Smartphone, Check } from 'lucide-react';
 
 export function WorkspaceBuildScreen({ onNext }: { onNext: () => void }) {
   const [completed, setCompleted] = useState(0);
   const tasks = [
-    'Creating your profile',
-    'Securing your workspace',
-    'Connecting selected courses',
-    'Preparing your academic structure',
-    'Composing your Cerebro Signature',
-    'Building your Home',
+    'Setting up Cerebro ID',
+    'Configuring system privacy',
+    'Connecting active courses',
+    'Preparing workspace layout',
+    'Finishing setup',
   ];
 
   useEffect(() => {
-    // Simulate real operations. In reality, these would await actual promises.
     const runTasks = async () => {
       for (let i = 0; i < tasks.length; i++) {
-        await new Promise((r) => setTimeout(r, 600 + Math.random() * 400));
+        await new Promise((r) => setTimeout(r, 650 + Math.random() * 250));
         setCompleted(i + 1);
       }
-      setTimeout(onNext, 1000);
+      setTimeout(onNext, 700);
     };
     runTasks();
   }, [onNext, tasks.length]);
 
+  const percent = Math.min(100, Math.round((completed / tasks.length) * 100));
+
   return (
-    <OnboardingFrame theme="light">
-      <div className="w-full max-w-md mx-auto text-center">
-        <h2 className="text-3xl font-medium text-slate-900 mb-12">
-          Building Your Cerebro
-        </h2>
+    <OnboardingFrame>
+      <div className="flex-1 flex flex-col justify-between py-6 w-full text-center">
+        {/* Apple-style Setup Header */}
+        <div className="my-auto space-y-6">
+          <div className="w-20 h-20 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto shadow-xl">
+            <Smartphone size={40} className="text-white animate-pulse" />
+          </div>
 
-        <div className="space-y-4 mb-12 text-left bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          {tasks.map((task, i) => (
+          <div>
+            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">
+              Setting Up Your Cerebro...
+            </h2>
+            <p className="text-xs text-zinc-400 font-mono">
+              {percent}% Completed
+            </p>
+          </div>
+
+          {/* iOS Progress Bar */}
+          <div className="w-64 max-w-xs mx-auto h-1.5 bg-zinc-800 rounded-full overflow-hidden">
             <div
-              key={i}
-              className={`flex items-center gap-4 transition-opacity duration-300 ${i <= completed ? 'opacity-100' : 'opacity-30'}`}
-            >
-              <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                {i < completed ? (
-                  <svg
-                    className="w-5 h-5 text-green-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                ) : i === completed ? (
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <div className="w-2 h-2 bg-slate-200 rounded-full" />
-                )}
-              </div>
-              <span
-                className={`text-lg ${i < completed ? 'text-slate-800' : i === completed ? 'text-blue-600 font-medium' : 'text-slate-400'}`}
-              >
-                {task}
+              className="h-full bg-white transition-all duration-300 ease-out rounded-full"
+              style={{ width: `${percent}%` }}
+            />
+          </div>
+
+          {/* Current Step Indicator */}
+          <div className="text-xs text-zinc-400 font-medium h-6">
+            {completed < tasks.length ? (
+              <span>{tasks[completed]}</span>
+            ) : (
+              <span className="text-[#34C759] font-semibold flex items-center justify-center gap-1.5">
+                <Check size={14} className="stroke-[3]" /> Setup Complete
               </span>
-            </div>
-          ))}
+            )}
+          </div>
         </div>
 
-        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-blue-500 transition-all duration-500 ease-out"
-            style={{ width: `${(completed / tasks.length) * 100}%` }}
-          />
-        </div>
+        <p className="text-[11px] text-zinc-600">
+          This may take a few moments. Do not close this window.
+        </p>
       </div>
     </OnboardingFrame>
   );
 }
+
+

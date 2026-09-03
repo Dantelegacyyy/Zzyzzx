@@ -14,9 +14,13 @@ const fetchWithRetry = async (
   baseDelayMs: number = 500
 ) => {
   let attempt = 0;
+  const fetchOptions: RequestInit = {
+    credentials: 'include',
+    ...options,
+  };
   while (attempt <= maxRetries) {
     try {
-      const res = await fetch(url, options);
+      const res = await fetch(url, fetchOptions);
       if (res.ok || (res.status >= 400 && res.status < 500)) {
         return res;
       }

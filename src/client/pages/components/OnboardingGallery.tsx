@@ -23,28 +23,30 @@ export function OnboardingGallery() {
   return (
     <div className="space-y-8">
       {/* Gallery Header */}
-      <div className="bg-[#0A111F] border border-cyan-900/40 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+      <div className="glass-panel rounded-3xl p-6 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute -right-8 -bottom-8 w-64 h-64 bg-cyan-500/15 rounded-full blur-[90px] pointer-events-none" />
+
+        <div className="relative z-10">
           <div className="flex items-center gap-2 text-cyan-400 text-xs font-semibold tracking-wider uppercase mb-1">
             <Layers size={16} />
             <span>Exact Visual Replica</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">13-Screen Cerebro Experience Navigator</h2>
-          <p className="text-slate-400 text-sm mt-0.5">
+          <h2 className="text-2xl font-bold text-white tracking-tight">13-Screen Cerebro Experience Navigator</h2>
+          <p className="text-slate-300 text-xs sm:text-sm mt-0.5">
             Explore the 12 onboarding cards from the master design blueprint leading into Screen 13 (AI Customized Dashboard).
           </p>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
-          <span className="text-xs font-semibold text-slate-400 mr-2">Jump to:</span>
+        <div className="relative z-10 flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+          <span className="text-xs font-semibold text-slate-400 mr-2 shrink-0">Jump to:</span>
           {screens.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveScreen(s.id)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
                 activeScreen === s.id
-                  ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-cyan-500 text-zinc-950 shadow-[0_0_15px_rgba(34,211,238,0.4)]'
+                  : 'glass-pill text-slate-300 hover:text-white'
               }`}
             >
               {s.id < 10 ? `0${s.id}` : s.id}

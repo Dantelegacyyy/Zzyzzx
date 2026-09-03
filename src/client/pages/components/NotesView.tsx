@@ -86,21 +86,21 @@ export const NotesView = () => {
 
   return (
     <div className="space-y-6 relative">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-wide">Notes & Files</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Persisted in Cloud SQL (PostgreSQL)</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Notes & Ingested Files</h2>
+          <p className="text-xs text-slate-400 mt-0.5 font-mono">Persisted in Cloud SQL (PostgreSQL)</p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={handleCreateNote}
-            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-sm transition-colors border border-slate-700"
+            className="glass-pill px-4 py-2 rounded-xl text-slate-200 hover:text-white font-medium text-xs transition-all"
           >
             + New Note
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-sm transition-colors shadow-lg shadow-cyan-900/50 cursor-pointer"
+            className="glass-button-primary px-4 py-2 rounded-xl text-white font-semibold text-xs transition-all cursor-pointer"
           >
             Upload File
             <input
@@ -113,19 +113,20 @@ export const NotesView = () => {
         </div>
       </div>
 
+      {/* Glassmorphism Drag & Drop Zone */}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`w-full border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-colors ${
+        className={`w-full border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center transition-all ${
           isDragging
-            ? 'border-cyan-400 bg-cyan-900/20'
-            : 'border-slate-700 bg-[#0A111F]/50 hover:border-cyan-900/50 hover:bg-[#0A111F]'
+            ? 'border-cyan-400 bg-cyan-500/15 backdrop-blur-2xl shadow-[0_0_30px_rgba(6,182,212,0.3)]'
+            : 'glass-panel hover:border-cyan-500/40 hover:bg-slate-900/60'
         }`}
       >
-        <div className="w-12 h-12 rounded-full bg-slate-800/50 flex items-center justify-center mb-3 border border-slate-700">
+        <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3 shadow-inner">
           <svg
-            className="w-6 h-6 text-slate-400"
+            className="w-6 h-6 text-cyan-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -133,16 +134,16 @@ export const NotesView = () => {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={1.5}
+              strokeWidth={1.8}
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
         </div>
-        <h3 className="text-base font-medium text-slate-200 mb-1">
-          Drag and drop files here
+        <h3 className="text-sm font-bold text-slate-100 mb-1">
+          Drag and drop syllabus or research files here
         </h3>
-        <p className="text-slate-500 mb-3 text-xs max-w-md text-center">
-          Upload PDFs, syllabi, and notes. Items are stored in Cloud SQL PostgreSQL.
+        <p className="text-slate-400 text-xs max-w-md text-center">
+          Upload PDFs, lecture slides, or markdown notes. Encrypted and saved to Cloud SQL PostgreSQL.
         </p>
       </div>
 
@@ -153,23 +154,23 @@ export const NotesView = () => {
           <NoteSkeleton />
         </div>
       ) : notes.length === 0 ? (
-        <div className="bg-[#0A111F] rounded-2xl border border-slate-800 p-8 text-center text-slate-500">
-          No notes stored in Cloud SQL yet. Click "+ New Note" or drop a file to create one!
+        <div className="glass-panel rounded-3xl p-8 text-center text-slate-400 text-xs">
+          No notes stored in Cloud SQL yet. Click "+ New Note" or drop a file above!
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {notes.map((note) => (
             <div
               key={note.id}
-              className="bg-[#0A111F] rounded-xl border border-slate-800 p-6 hover:border-cyan-900/50 transition-colors"
+              className="glass-card rounded-2xl p-6 group cursor-pointer"
             >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-base font-medium text-slate-200">{note.title}</h3>
-                <span className="text-[10px] text-cyan-500 font-mono bg-cyan-900/20 px-2 py-0.5 rounded">
+              <div className="flex justify-between items-start mb-3 gap-2">
+                <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-1">{note.title}</h3>
+                <span className="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 rounded-full shrink-0">
                   Cloud SQL
                 </span>
               </div>
-              <p className="text-xs text-slate-400 line-clamp-3">{note.content}</p>
+              <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">{note.content}</p>
             </div>
           ))}
         </div>

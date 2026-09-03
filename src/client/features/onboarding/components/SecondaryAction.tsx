@@ -12,9 +12,11 @@ export function SecondaryAction({
   return (
     <button
       onClick={onClick}
-      className={`min-h-[44px] px-8 py-3 rounded-full font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-colors ${className}`}
+      className={`min-h-[50px] px-8 py-3.5 rounded-full font-semibold text-base text-[#007AFF] hover:bg-[#007AFF]/10 active:bg-[#007AFF]/20 transition-all duration-200 ${className}`}
     >
       {children}
     </button>
   );
 }
+
+

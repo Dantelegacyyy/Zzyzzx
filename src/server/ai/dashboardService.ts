@@ -6,6 +6,11 @@ import {
   DesignLibraryManager,
 } from './designLibrary.js';
 import { generateCuratedDashboardConfig, CuratedDashboardConfig, StudentOnboardingData } from './curationService.js';
+import { db } from '../../db/index.js';
+import { users } from '../../db/schema.js';
+import { getOrCreateUser } from '../../db/users.js';
+import { eq } from 'drizzle-orm';
+import { DashboardCacheService } from '../cache/redis.js';
 
 export interface CourseInput {
   courseCode?: string;
@@ -15,7 +20,9 @@ export interface CourseInput {
 }
 
 export interface StudentDashboardRequest {
+  userId?: string;
   userName?: string;
+  email?: string;
   courses: (string | CourseInput)[];
   academicFocus?: string;
   fieldOfStudy?: string;
@@ -39,6 +46,40 @@ export class AIDashboardService {
    */
   public static readonly layoutSchemas = LAYOUT_LIBRARY;
   public static readonly colorThemes = COLOR_SCHEME_LIBRARY;
+
+  /**
+   * Stores and persists the selected user theme color preference in the Postgres database.
+   */
+  public static async persistUserThemePreference(
+    userId: string,
+    themeColor: string,
+    email: string = 'commander@cerebro.edu'
+  ): Promise<{ success: boolean; userId: string; themeColor: string; error?: string }> {
+    try {
+      // Ensure user record exists in Postgres database
+      await getOrCreateUser(userId, email);
+
+      // Persist user theme preference in users table
+      await db
+        .update(users)
+        .set({ themeColor })
+        .where(eq(users.uid, userId));
+
+      return {
+        success: true,
+        userId,
+        themeColor,
+      };
+    } catch (error: any) {
+      console.warn('[AIDashboardService] Postgres theme persistence warning:', error?.message || error);
+      return {
+        success: false,
+        userId,
+        themeColor,
+        error: error?.message || 'Database update failed',
+      };
+    }
+  }
 
   /**
    * Dynamically maps layout schemas and color themes based on the student's academic focus and courses.
@@ -124,11 +165,58 @@ export class AIDashboardService {
   }
 
   /**
+   * Helper method to generate a deterministic cache key for student dashboard requests
+   */
+  private static buildCacheKey(request: StudentDashboardRequest): string {
+    const courseNames = request.courses
+      .map((c) => (typeof c === 'string' ? c : c.courseName))
+      .sort()
+      .join(',');
+    const user = request.userId || request.email || request.userName || 'anonymous';
+    const focus = request.academicFocus || request.fieldOfStudy || 'default';
+    const vibe = request.vibe || 'default';
+    return `layout:${user}:${focus}:${courseNames}:${vibe}`;
+  }
+
+  /**
+   * Retrieve cached dashboard layout schema for a user request if present in Redis
+   */
+  public static async getCachedLayoutSchema(request: StudentDashboardRequest): Promise<CuratedDashboardConfig | null> {
+    const cacheKey = this.buildCacheKey(request);
+    return await DashboardCacheService.get<CuratedDashboardConfig>(cacheKey);
+  }
+
+  /**
+   * Invalidate cached dashboard layout schema for a user
+   */
+  public static async invalidateUserDashboardCache(request: StudentDashboardRequest): Promise<void> {
+    const cacheKey = this.buildCacheKey(request);
+    await DashboardCacheService.invalidate(cacheKey);
+  }
+
+  /**
    * Main entrypoint method: Accepts course data input and returns a complete curated dashboard configuration.
+   * Leverages Redis cache layer to prevent repeated expensive AI & DB schema queries.
    */
   public static async generateDashboardConfig(
     request: StudentDashboardRequest
   ): Promise<CuratedDashboardConfig> {
+    const cacheKey = this.buildCacheKey(request);
+
+    // 1. Check Redis / Memory Caching Layer first
+    try {
+      const cachedConfig = await DashboardCacheService.get<CuratedDashboardConfig>(cacheKey);
+      if (cachedConfig) {
+        console.log(`[AIDashboardService] Redis Cache HIT for key: ${cacheKey}`);
+        return {
+          ...cachedConfig,
+          cached: true,
+        };
+      }
+    } catch (err) {
+      console.warn('[AIDashboardService] Cache read error, continuing to fresh generation:', err);
+    }
+
     const courseNames: string[] = request.courses.map((c) =>
       typeof c === 'string' ? c : c.courseName
     );
@@ -163,8 +251,28 @@ export class AIDashboardService {
     dashboardConfig.selectedColorScheme = mapping.theme;
     dashboardConfig.layoutMode = mapping.layout.category;
 
+    // Automatically persist the selected user theme color preference in Postgres if user info is present
+    const selectedThemeColor = mapping.theme.primaryAccent || mapping.theme.name;
+    const targetUserId = request.userId || (request.userName ? `usr_${request.userName.toLowerCase().replace(/\s+/g, '_')}` : 'usr_commander');
+    
+    await AIDashboardService.persistUserThemePreference(
+      targetUserId,
+      selectedThemeColor,
+      request.email || 'commander@cerebro.edu'
+    );
+
+    // 2. Persist in Redis Cache layer (1 hour TTL) to reduce repeated database/AI queries
+    try {
+      await DashboardCacheService.set(cacheKey, dashboardConfig, 3600);
+      console.log(`[AIDashboardService] Cached layout schema in Redis for key: ${cacheKey}`);
+    } catch (err) {
+      console.warn('[AIDashboardService] Failed to cache dashboard config in Redis:', err);
+    }
+
     return dashboardConfig;
   }
 }
+
+export const persistUserThemePreference = AIDashboardService.persistUserThemePreference;
 
 export default AIDashboardService;

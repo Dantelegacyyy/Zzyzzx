@@ -19,6 +19,8 @@ const EnvSchema = z.object({
   SQL_USER: z.string().optional(),
   SQL_PASSWORD: z.string().optional(),
   SQL_DB_NAME: z.string().optional(),
+  JWT_SECRET: z.string().default('cerebro_aegis_jwt_secret_key_production_2026_super_secure'),
+  REDIS_URL: z.string().optional(),
 });
 
 let env: z.infer<typeof EnvSchema>;
@@ -39,6 +41,8 @@ try {
     SQL_USER: process.env.SQL_USER,
     SQL_PASSWORD: process.env.SQL_PASSWORD,
     SQL_DB_NAME: process.env.SQL_DB_NAME,
+    JWT_SECRET: process.env.JWT_SECRET || 'cerebro_aegis_jwt_secret_key_production_2026_super_secure',
+    REDIS_URL: process.env.REDIS_URL,
   };
 }
 

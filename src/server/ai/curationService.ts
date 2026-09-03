@@ -60,6 +60,7 @@ export interface CuratedDashboardConfig {
   widgets: CuratedWidget[];
   studyVectorSchedule: StudyVectorSchedule[];
   aiSystemPrompt: string;
+  cached?: boolean;
 }
 
 export async function generateCuratedDashboardConfig(

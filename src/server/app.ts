@@ -10,7 +10,13 @@ import { canvasRoutes } from './academic/canvasRoutes.js';
 import { aiRoutes } from './ai/routes.js';
 import { uploadRoutes } from './ingestion/uploadRoutes.js';
 import { workspaceRoutes } from './routes/workspaceRoutes.js';
+import { authRoutes } from './auth/authRoutes.js';
 import { generateStabilityReport } from './utils/stability.js';
+import {
+  runAegisSecurityAudit,
+  runOperationalFeatureTests,
+  generateAppStoreReadinessReport,
+} from './aegis/aegisGuardian.js';
 import { checkDatabaseConnection } from '../db/index.js';
 import { runMigrations } from '../db/migrate.js';
 
@@ -40,6 +46,7 @@ export function addApiLog(entry: Omit<ApiLogEntry, 'id'>) {
 }
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(assignRequestId);
 
 // API Connection Logger Middleware
@@ -88,8 +95,13 @@ const globalLimiter = rateLimit({
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
+  keyGenerator: (req) => {
+    return req.ip || (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+  },
 });
 app.use('/api', globalLimiter);
+app.use('/api/auth', authRoutes);
 app.use('/api/canvas', canvasRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/upload', uploadRoutes);
@@ -160,6 +172,33 @@ app.get('/api/admin/stability', async (req, res) => {
     res.json(report);
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate stability report' });
+  }
+});
+
+app.get('/api/aegis/audit', async (req, res) => {
+  try {
+    const report = await runAegisSecurityAudit();
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to execute AEGIS security audit' });
+  }
+});
+
+app.get('/api/aegis/operational-tests', async (req, res) => {
+  try {
+    const results = await runOperationalFeatureTests();
+    res.json({ timestamp: new Date().toISOString(), results });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to execute operational feature tests' });
+  }
+});
+
+app.get('/api/aegis/appstore-report', (req, res) => {
+  try {
+    const report = generateAppStoreReadinessReport();
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate App Store report' });
   }
 });
 

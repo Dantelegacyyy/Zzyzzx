@@ -15,13 +15,15 @@ export function PrimaryAction({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`min-h-[44px] px-8 py-3 rounded-full font-medium tracking-wide transition-all ${
+      className={`min-h-[50px] px-8 py-3.5 rounded-full font-semibold text-base tracking-tight transition-all duration-200 shadow-md ${
         disabled
-          ? 'opacity-50 cursor-not-allowed bg-slate-300 text-slate-500'
-          : 'bg-slate-900 text-white hover:bg-slate-800 shadow-md hover:shadow-lg active:scale-[0.98]'
+          ? 'opacity-30 cursor-not-allowed bg-zinc-800 text-zinc-500 border border-zinc-700/50'
+          : 'bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white shadow-[0_4px_20px_rgba(0,122,255,0.35)] hover:shadow-[0_6px_24px_rgba(0,122,255,0.5)]'
       } ${className}`}
     >
       {children}
     </button>
   );
 }
+
+

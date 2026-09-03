@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   email: text('email').notNull(),
   profileName: text('profile_name'),
   university: text('university'),
+  themeColor: text('theme_color'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

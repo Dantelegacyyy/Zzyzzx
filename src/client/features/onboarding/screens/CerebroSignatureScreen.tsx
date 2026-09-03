@@ -3,6 +3,7 @@ import { OnboardingFrame } from '../components/OnboardingFrame';
 import { PrimaryAction } from '../components/PrimaryAction';
 import { SecondaryAction } from '../components/SecondaryAction';
 import { CerebroSignatureInput } from '../onboardingTypes';
+import { Sun, Moon, Sparkles } from 'lucide-react';
 
 export function CerebroSignatureScreen({
   onNext,
@@ -12,83 +13,90 @@ export function CerebroSignatureScreen({
   onBack: () => void;
 }) {
   const [sig, setSig] = useState<CerebroSignatureInput>({
-    preferredMode: 'ADAPTIVE',
-    density: 'BALANCED',
+    preferredMode: 'DARK',
+    density: 'RICH',
     navigationComfort: 'SIDE',
-    accentPreference: 'SURPRISE_ME',
+    accentPreference: 'VIBRANT',
     motionPreference: 'FULL',
   });
 
   return (
-    <OnboardingFrame theme="light">
-      <div className="w-full max-w-lg mx-auto">
-        <h2 className="text-3xl font-medium text-slate-900 mb-8 text-center">
-          Cerebro Signature
-        </h2>
+    <OnboardingFrame>
+      <div className="flex-1 flex flex-col justify-between py-2 w-full text-center">
+        {/* Header Section */}
+        <div>
+          <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#007AFF] flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <Sparkles size={32} />
+          </div>
+          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+            Appearance
+          </h2>
+          <p className="text-sm text-zinc-400 max-w-xs mx-auto leading-relaxed">
+            Select your preferred display theme for Cerebro.
+          </p>
+        </div>
 
-        <div className="space-y-8 mb-10">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-3">
-              Color Mode
-            </label>
-            <div className="flex gap-2">
-              {['LIGHT', 'DARK', 'ADAPTIVE'].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setSig({ ...sig, preferredMode: m as any })}
-                  className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors ${sig.preferredMode === m ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-3">
-              Density
-            </label>
-            <div className="flex gap-2">
-              {['SIMPLE', 'BALANCED', 'RICH'].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setSig({ ...sig, density: m as any })}
-                  className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors ${sig.density === m ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-3">
-              Vibe / Accent
-            </label>
-            <select
-              value={sig.accentPreference}
-              onChange={(e) =>
-                setSig({ ...sig, accentPreference: e.target.value as any })
-              }
-              className="w-full min-h-[44px] px-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400"
+        {/* Side-by-Side iOS Theme Options */}
+        <div className="my-auto py-3">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Dark Theme Option */}
+            <button
+              onClick={() => setSig({ ...sig, preferredMode: 'DARK' })}
+              className={`p-4 rounded-2xl border flex flex-col items-center gap-3 transition-all ${
+                sig.preferredMode === 'DARK'
+                  ? 'border-[#007AFF] bg-zinc-800/90 ring-2 ring-[#007AFF]/50'
+                  : 'border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/50'
+              }`}
             >
-              <option value="SURPRISE_ME">Surprise Me</option>
-              <option value="COOL">Cool / Technical</option>
-              <option value="WARM">Warm / Organic</option>
-              <option value="VIBRANT">Vibrant / Neon</option>
-              <option value="MUTED">Muted / Academic</option>
-              <option value="MONOCHROME">Monochrome / Minimalist</option>
-            </select>
+              <div className="w-full h-24 rounded-xl bg-zinc-950 border border-zinc-800 p-2 flex flex-col gap-1.5 shadow-inner">
+                <div className="w-12 h-2 rounded bg-zinc-700" />
+                <div className="w-full h-8 rounded bg-zinc-900 border border-zinc-800 flex items-center px-2">
+                  <div className="w-3 h-3 rounded-full bg-[#007AFF]" />
+                </div>
+                <div className="w-3/4 h-2 rounded bg-zinc-800" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Moon size={16} className="text-[#007AFF]" />
+                <span className="text-sm font-semibold text-white">Dark</span>
+              </div>
+            </button>
+
+            {/* Light Theme Option */}
+            <button
+              onClick={() => setSig({ ...sig, preferredMode: 'LIGHT' })}
+              className={`p-4 rounded-2xl border flex flex-col items-center gap-3 transition-all ${
+                sig.preferredMode === 'LIGHT'
+                  ? 'border-[#007AFF] bg-zinc-800/90 ring-2 ring-[#007AFF]/50'
+                  : 'border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/50'
+              }`}
+            >
+              <div className="w-full h-24 rounded-xl bg-zinc-200 border border-zinc-300 p-2 flex flex-col gap-1.5 shadow-inner">
+                <div className="w-12 h-2 rounded bg-zinc-400" />
+                <div className="w-full h-8 rounded bg-white border border-zinc-300 flex items-center px-2">
+                  <div className="w-3 h-3 rounded-full bg-[#007AFF]" />
+                </div>
+                <div className="w-3/4 h-2 rounded bg-zinc-300" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Sun size={16} className="text-amber-400" />
+                <span className="text-sm font-semibold text-white">Light</span>
+              </div>
+            </button>
           </div>
         </div>
 
-        <div className="flex gap-4 w-full">
-          <SecondaryAction onClick={onBack} className="flex-1">
+        {/* Bottom Actions */}
+        <div className="w-full space-y-2 pt-2">
+          <PrimaryAction onClick={() => onNext(sig)} className="w-full">
+            Continue
+          </PrimaryAction>
+          <SecondaryAction onClick={onBack} className="w-full">
             Back
           </SecondaryAction>
-          <PrimaryAction onClick={() => onNext(sig)} className="flex-1">
-            Compose
-          </PrimaryAction>
         </div>
       </div>
     </OnboardingFrame>
   );
 }
+
+

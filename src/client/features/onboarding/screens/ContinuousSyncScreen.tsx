@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { OnboardingFrame } from '../components/OnboardingFrame';
 import { PrimaryAction } from '../components/PrimaryAction';
 import { SecondaryAction } from '../components/SecondaryAction';
+import { RefreshCw, Check } from 'lucide-react';
 
 export function ContinuousSyncScreen({
   onNext,
@@ -10,66 +11,73 @@ export function ContinuousSyncScreen({
   onNext: (sync: boolean) => void;
   onBack: () => void;
 }) {
-  const [sync, setSync] = useState(false);
+  const [sync, setSync] = useState(true);
 
   return (
-    <OnboardingFrame theme="light">
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center">
-        <h2 className="text-3xl font-medium text-slate-900 mb-10 text-center">
-          Keep your courses in sync automatically.
-        </h2>
+    <OnboardingFrame>
+      <div className="flex-1 flex flex-col justify-between py-2 w-full text-center">
+        {/* Header Section */}
+        <div>
+          <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#007AFF] flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <RefreshCw size={32} />
+          </div>
+          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+            Automatic Updates
+          </h2>
+          <p className="text-sm text-zinc-400 max-w-xs mx-auto leading-relaxed">
+            Keep your academic schedules, assignment alerts, and course materials automatically up to date.
+          </p>
+        </div>
 
-        <div className="space-y-8 w-full bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mb-10">
-          <div className="flex items-center justify-between">
+        {/* Grouped iOS Toggle Switch Card */}
+        <div className="my-auto py-3 space-y-3 text-left">
+          <div className="p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-medium text-slate-900">
-                Enable continuous sync
-              </h3>
-              <p className="text-slate-500 mt-1">
-                Stays up to date in the background.
-              </p>
+              <h4 className="text-sm font-semibold text-white">Continuous Background Sync</h4>
+              <p className="text-xs text-zinc-400">Automated syllabus & deadline intake</p>
             </div>
             <button
               onClick={() => setSync(!sync)}
-              className={`w-14 h-8 rounded-full transition-colors relative ${sync ? 'bg-blue-500' : 'bg-slate-200'}`}
+              className={`w-12 h-7 rounded-full p-0.5 transition-colors duration-200 ease-in-out ${
+                sync ? 'bg-[#34C759]' : 'bg-zinc-700'
+              }`}
             >
               <div
-                className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow ${sync ? 'left-7' : 'left-1'}`}
+                className={`w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out ${
+                  sync ? 'translate-x-5' : 'translate-x-0'
+                }`}
               />
             </button>
           </div>
 
-          <div className="h-px bg-slate-100 w-full" />
-
-          <ul className="space-y-4 text-slate-600">
-            <li className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
-              new assignments & updates
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
-              deadlines & announcements
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
-              lecture materials & files when authorized
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
-              grades/feedback only when provider scope allows
-            </li>
-          </ul>
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+            {[
+              'Instant calendar deadline sync & smart notifications',
+              'Background processing of lecture notes and files',
+              'Zero battery drain with optimized event listeners',
+            ].map((stmt, i) => (
+              <div key={i} className="flex items-center gap-3 text-xs text-zinc-300">
+                <div className="p-1 rounded-full bg-[#34C759]/20 text-[#34C759] shrink-0">
+                  <Check size={12} className="stroke-[3]" />
+                </div>
+                <span>{stmt}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="flex gap-4 w-full">
-          <SecondaryAction onClick={onBack} className="flex-1">
+        {/* Bottom Actions */}
+        <div className="w-full space-y-2 pt-2">
+          <PrimaryAction onClick={() => onNext(sync)} className="w-full">
+            Continue
+          </PrimaryAction>
+          <SecondaryAction onClick={onBack} className="w-full">
             Back
           </SecondaryAction>
-          <PrimaryAction onClick={() => onNext(sync)} className="flex-1">
-            Next
-          </PrimaryAction>
         </div>
       </div>
     </OnboardingFrame>
   );
 }
+
+

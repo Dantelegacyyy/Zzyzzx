@@ -93,25 +93,27 @@ export function ApiLogsView() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#0A111F] border border-cyan-900/40 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+      <div className="glass-panel rounded-3xl p-6 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute -right-8 -bottom-8 w-64 h-64 bg-cyan-500/15 rounded-full blur-[90px] pointer-events-none" />
+
+        <div className="relative z-10">
           <div className="flex items-center gap-2 text-cyan-400 text-xs font-semibold tracking-wider uppercase mb-1">
             <Activity size={16} className="animate-pulse" />
-            <span>Real-time Telemetry</span>
+            <span>Real-time Telemetry Engine</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">API Connection Logs</h2>
-          <p className="text-slate-400 text-sm mt-0.5">
-            Monitoring live HTTP requests, Cloud SQL database calls, and Gemini AI endpoints.
+          <h2 className="text-2xl font-bold text-white tracking-tight">API Connection & Endpoint Logs</h2>
+          <p className="text-slate-300 text-xs sm:text-sm mt-0.5">
+            Monitoring live HTTP requests, Cloud SQL database queries, and Gemini 2.5 API traffic.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="relative z-10 flex items-center gap-3">
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
               autoRefresh
-                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50'
-                : 'bg-slate-800 text-slate-400 border-slate-700'
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+                : 'glass-pill text-slate-400'
             }`}
           >
             <div className={`w-2 h-2 rounded-full ${autoRefresh ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
@@ -121,7 +123,7 @@ export function ApiLogsView() {
           <button
             onClick={fetchLogs}
             disabled={loading}
-            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-colors flex items-center gap-1 text-xs"
+            className="glass-pill px-3.5 py-2 text-slate-200 hover:text-white rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin text-cyan-400' : ''} />
             <span>Refresh</span>
@@ -130,15 +132,15 @@ export function ApiLogsView() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0A111F]/80 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-2xl">
         <div className="flex items-center gap-3">
           <Filter size={16} className="text-slate-400" />
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Filter By:</span>
+          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Filter By:</span>
 
           <select
             value={filterMethod}
             onChange={(e) => setFilterMethod(e.target.value)}
-            className="bg-[#050B14] border border-slate-700 rounded-lg px-3 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+            className="glass-input rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none"
           >
             <option value="ALL">All Methods</option>
             <option value="GET">GET</option>
@@ -150,7 +152,7 @@ export function ApiLogsView() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-[#050B14] border border-slate-700 rounded-lg px-3 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+            className="glass-input rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="2XX">2xx Success</option>
@@ -160,45 +162,49 @@ export function ApiLogsView() {
         </div>
 
         <div className="text-xs text-slate-400 font-mono">
-          Showing <span className="text-cyan-400 font-bold">{filteredLogs.length}</span> of {logs.length} logged events
+          Showing <span className="text-cyan-300 font-bold">{filteredLogs.length}</span> of {logs.length} logged events
         </div>
       </div>
 
       {/* Log Stream Table */}
-      <div className="bg-[#0A111F] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="glass-panel rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-[#050B14] border-b border-slate-800 text-xs font-mono text-slate-400 uppercase tracking-wider">
+            <thead className="bg-black/30 border-b border-white/10 text-xs font-mono text-slate-400 uppercase tracking-wider">
               <tr>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Method</th>
-                <th className="py-3 px-4">Endpoint Path</th>
-                <th className="py-3 px-4">Latency</th>
-                <th className="py-3 px-4">Client IP</th>
-                <th className="py-3 px-4 text-right">Timestamp</th>
+                <th className="py-3.5 px-5">Status</th>
+                <th className="py-3.5 px-5">Method</th>
+                <th className="py-3.5 px-5">Endpoint Path</th>
+                <th className="py-3.5 px-5">Latency</th>
+                <th className="py-3.5 px-5">Client IP</th>
+                <th className="py-3.5 px-5 text-right">Timestamp</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
+            <tbody className="divide-y divide-white/5 font-mono text-xs">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-500">
-                    <Terminal size={24} className="mx-auto mb-2 text-slate-600" />
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <Terminal size={24} className="mx-auto mb-2 text-slate-500" />
                     No API connection events recorded yet. Perform an action to see real-time logs.
                   </td>
                 </tr>
               ) : (
                 filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3 px-4 whitespace-nowrap">{getStatusBadge(log.statusCode)}</td>
-                    <td className="py-3 px-4 whitespace-nowrap">{getMethodBadge(log.method)}</td>
-                    <td className="py-3 px-4 text-cyan-300 font-medium whitespace-nowrap">{log.path}</td>
-                    <td className="py-3 px-4 text-slate-300 whitespace-nowrap">
-                      <span className={`px-1.5 py-0.5 rounded ${log.durationMs > 200 ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-800 text-slate-300'}`}>
+                  <tr key={log.id} className="hover:bg-white/5 transition-colors">
+                    <td className="py-3.5 px-5 whitespace-nowrap">{getStatusBadge(log.statusCode)}</td>
+                    <td className="py-3.5 px-5 whitespace-nowrap">{getMethodBadge(log.method)}</td>
+                    <td className="py-3.5 px-5 text-cyan-300 font-semibold whitespace-nowrap">{log.path}</td>
+                    <td className="py-3.5 px-5 text-slate-300 whitespace-nowrap">
+                      <span className={`px-2 py-0.5 rounded-full border ${
+                        log.durationMs > 200 
+                          ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' 
+                          : 'bg-white/10 text-slate-200 border-white/10'
+                      }`}>
                         {log.durationMs} ms
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-400 whitespace-nowrap">{log.clientIp}</td>
-                    <td className="py-3 px-4 text-right text-slate-500 whitespace-nowrap">
+                    <td className="py-3.5 px-5 text-slate-400 whitespace-nowrap">{log.clientIp}</td>
+                    <td className="py-3.5 px-5 text-right text-slate-400 whitespace-nowrap">
                       {new Date(log.timestamp).toLocaleTimeString()}
                     </td>
                   </tr>

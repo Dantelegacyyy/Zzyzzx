@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { OnboardingFrame } from '../components/OnboardingFrame';
 import { PrimaryAction } from '../components/PrimaryAction';
 import { SecondaryAction } from '../components/SecondaryAction';
+import { Link2, Check, ShieldCheck } from 'lucide-react';
 
 export function CanvasBridgeScreen({
   onNext,
@@ -10,69 +11,76 @@ export function CanvasBridgeScreen({
   onNext: (connected: boolean) => void;
   onBack: () => void;
 }) {
+  const [isEnabled, setIsEnabled] = useState(true);
+
   return (
-    <OnboardingFrame theme="light">
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center">
-        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-8 border border-red-100">
-          <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="12" r="10" />
-          </svg>
+    <OnboardingFrame>
+      <div className="flex-1 flex flex-col justify-between py-2 w-full text-center">
+        {/* Header Section */}
+        <div>
+          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 text-[#FF3B30] flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <Link2 size={32} />
+          </div>
+          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+            Canvas LMS Bridge
+          </h2>
+          <p className="text-sm text-zinc-400 max-w-xs mx-auto leading-relaxed">
+            Connect Canvas to automatically import your assignments, announcements, and course files.
+          </p>
         </div>
 
-        <h2 className="text-3xl font-medium text-slate-900 mb-4 text-center">
-          The Canvas Bridge
-        </h2>
-        <p className="text-lg text-slate-600 mb-10">
-          Cerebro connects securely to your Canvas account.
-        </p>
+        {/* Grouped iOS Switch & Permission Items */}
+        <div className="my-auto py-3 space-y-3 text-left">
+          <div className="p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-white">Enable Canvas LMS Sync</h4>
+              <p className="text-xs text-zinc-400">Read-only OAuth 2.0 authorization</p>
+            </div>
+            <button
+              onClick={() => setIsEnabled(!isEnabled)}
+              className={`w-12 h-7 rounded-full p-0.5 transition-colors duration-200 ease-in-out ${
+                isEnabled ? 'bg-[#34C759]' : 'bg-zinc-700'
+              }`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out ${
+                  isEnabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
 
-        <ul className="space-y-6 w-full text-left bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mb-10">
-          {[
-            'We use official Canvas OAuth.',
-            'We never see your school password.',
-            'You control what we access.',
-            'You can disconnect later.',
-          ].map((stmt, i) => (
-            <li key={i} className="flex items-center gap-3 text-slate-700">
-              <svg
-                className="w-5 h-5 text-green-500 shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              {stmt}
-            </li>
-          ))}
-        </ul>
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+            {[
+              'Official Canvas OAuth 2.0 encrypted protocol',
+              'Zero logging or storage of your student password',
+              'Revoke access anytime from Cerebro Settings',
+            ].map((stmt, i) => (
+              <div key={i} className="flex items-center gap-3 text-xs text-zinc-300">
+                <div className="p-1 rounded-full bg-[#34C759]/20 text-[#34C759] shrink-0">
+                  <Check size={12} className="stroke-[3]" />
+                </div>
+                <span>{stmt}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full">
-          <SecondaryAction
-            onClick={onBack}
-            className="flex-1 order-2 sm:order-1"
-          >
-            Back
-          </SecondaryAction>
-          <SecondaryAction
-            onClick={() => onNext(false)}
-            className="flex-1 order-1 sm:order-2"
-          >
-            Not now
-          </SecondaryAction>
+        {/* Bottom Actions */}
+        <div className="w-full space-y-2 pt-2">
           <PrimaryAction
-            onClick={() => onNext(true)}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white order-3"
+            onClick={() => onNext(isEnabled)}
+            className="w-full bg-[#FF3B30] hover:bg-[#D70015] shadow-[0_4px_20px_rgba(255,59,48,0.35)]"
           >
-            Connect Canvas
+            {isEnabled ? 'Connect Canvas LMS' : 'Continue Without Canvas'}
           </PrimaryAction>
+          <SecondaryAction onClick={onBack} className="w-full">
+            Set Up Later in Settings
+          </SecondaryAction>
         </div>
       </div>
     </OnboardingFrame>
   );
 }
+
+

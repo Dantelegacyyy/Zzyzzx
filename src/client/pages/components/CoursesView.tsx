@@ -87,24 +87,24 @@ export const CoursesView = () => {
 
   return (
     <div className="space-y-6 relative">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-wide">Courses</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Persisted in Cloud SQL (PostgreSQL)</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Enrolled Courses</h2>
+          <p className="text-xs text-slate-400 mt-0.5 font-mono">Persisted in Cloud SQL (PostgreSQL)</p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={handleSyncCanvas}
             disabled={isSyncing}
-            className="px-4 py-2 rounded-lg bg-[#0A111F] border border-slate-700 hover:border-cyan-700 text-slate-300 font-medium text-sm transition-colors disabled:opacity-50"
+            className="glass-pill px-4 py-2 rounded-xl text-slate-200 hover:text-white font-medium text-xs transition-all disabled:opacity-50"
           >
-            {isSyncing ? 'Syncing...' : 'Sync Canvas'}
+            {isSyncing ? 'Syncing Canvas...' : 'Sync Canvas LMS'}
           </button>
           <button
             onClick={handleAddCourse}
-            className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-sm transition-colors shadow-lg shadow-cyan-900/50"
+            className="glass-button-primary px-4 py-2 rounded-xl text-white font-semibold text-xs transition-all"
           >
-            Add Course
+            + Add Course
           </button>
         </div>
       </div>
@@ -116,12 +116,12 @@ export const CoursesView = () => {
           <CourseSkeleton />
         </div>
       ) : courses.length === 0 ? (
-        <div className="bg-[#0A111F] rounded-2xl border border-slate-800 p-12 text-center">
-          <h3 className="text-xl font-medium text-slate-300 mb-2">
+        <div className="glass-panel rounded-3xl p-12 text-center">
+          <h3 className="text-lg font-bold text-slate-200 mb-2">
             No courses in Cloud SQL yet
           </h3>
-          <p className="text-slate-500 mb-6 max-w-md mx-auto">
-            Connect your Canvas account to automatically sync your enrolled
+          <p className="text-slate-400 text-xs mb-6 max-w-md mx-auto">
+            Connect your Canvas LMS account to automatically sync your enrolled
             courses to Cloud SQL, or add them manually.
           </p>
         </div>
@@ -130,21 +130,21 @@ export const CoursesView = () => {
           {courses.map((course) => (
             <div
               key={course.id || course.code}
-              className="bg-[#0A111F] rounded-xl border border-slate-800 p-6 hover:border-cyan-900/50 transition-colors cursor-pointer relative group"
+              className="glass-card rounded-2xl p-6 relative group cursor-pointer"
             >
               <div className="flex justify-between items-start mb-4">
-                <span className="text-xs font-mono text-cyan-500 bg-cyan-900/20 px-2 py-1 rounded">
+                <span className="text-xs font-mono font-semibold text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-1 rounded-full">
                   {course.code || 'CS101'}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-[11px] font-mono text-slate-400">
                   {course.syncedCanvas === 'true' ? 'Canvas Synced' : 'Cloud SQL'}
                 </span>
               </div>
-              <h3 className="text-lg font-medium text-slate-200 mb-2">
+              <h3 className="text-lg font-bold text-white mb-2 tracking-tight group-hover:text-cyan-300 transition-colors">
                 {course.title || course.name}
               </h3>
               {course.instructor && (
-                <p className="text-sm text-slate-500">{course.instructor}</p>
+                <p className="text-xs text-slate-400">{course.instructor}</p>
               )}
             </div>
           ))}

@@ -2,6 +2,7 @@ import React from 'react';
 import { OnboardingFrame } from '../components/OnboardingFrame';
 import { PrimaryAction } from '../components/PrimaryAction';
 import { SecondaryAction } from '../components/SecondaryAction';
+import { ShieldCheck, Check } from 'lucide-react';
 
 export function AegisActivationScreen({
   onNext,
@@ -11,57 +12,63 @@ export function AegisActivationScreen({
   onBack: () => void;
 }) {
   return (
-    <OnboardingFrame theme="dark">
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center">
-        <div className="mb-10 w-32 h-32 relative flex items-center justify-center">
-          {/* Fallback styling if image fails to load */}
-          <div className="absolute inset-0 bg-yellow-600/20 rounded-full blur-[40px]"></div>
-          <img
-            src="/assets/brand/aegis-guardian-emblem.png"
-            alt="AEGIS Guardian"
-            className="w-full h-full object-contain relative z-10"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML +=
-                '<div class="text-yellow-500 w-full h-full flex items-center justify-center border-2 border-yellow-500/50 rounded-full"><span class="text-xs">AEGIS</span></div>';
-            }}
-          />
+    <OnboardingFrame>
+      <div className="flex-1 flex flex-col justify-between py-2 w-full text-center">
+        {/* Header Section */}
+        <div>
+          <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 text-[#FF9500] flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <ShieldCheck size={32} />
+          </div>
+          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+            Project AEGIS
+          </h2>
+          <p className="text-sm text-zinc-400 max-w-xs mx-auto leading-relaxed">
+            Integrated security guardian providing isolated environment verification and privacy observation.
+          </p>
         </div>
 
-        <h3 className="text-yellow-600 font-semibold tracking-widest uppercase text-sm mb-3">
-          AEGIS GUARDIAN
-        </h3>
-        <h2 className="text-4xl md:text-5xl font-medium text-white mb-6">
-          Meet Your Guardian.
-        </h2>
+        {/* Grouped Security Specs Card */}
+        <div className="my-auto py-3 space-y-3 text-left">
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <span className="text-xs font-medium text-zinc-400">AEGIS Operational Mode</span>
+              <span className="text-xs font-semibold text-[#FF9500] bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                Phase 2 Dormant Seed
+              </span>
+            </div>
 
-        <p className="text-slate-400 text-lg leading-relaxed mb-10 max-w-md">
-          Adaptive Guardian Intelligence monitors your workspace integrity,
-          synthesizes complex materials securely, and protects your data
-          parameters.
-        </p>
+            <div className="space-y-2">
+              {[
+                'Read-Only evidence observer active',
+                'Isolated, non-runtime, non-automated verifier',
+                'Owner-Locked boundary parameters',
+              ].map((stmt, i) => (
+                <div key={i} className="flex items-center gap-3 text-xs text-zinc-300">
+                  <div className="p-1 rounded-full bg-[#34C759]/20 text-[#34C759] shrink-0">
+                    <Check size={12} className="stroke-[3]" />
+                  </div>
+                  <span>{stmt}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full mt-4">
-          <SecondaryAction
-            onClick={onBack}
-            className="text-slate-400 hover:text-white hover:bg-white/10"
-          >
-            Back
-          </SecondaryAction>
-          <SecondaryAction
-            onClick={onNext}
-            className="text-slate-400 hover:text-white hover:bg-white/10"
-          >
-            Learn more
-          </SecondaryAction>
+        {/* Bottom Actions */}
+        <div className="w-full space-y-2 pt-2">
           <PrimaryAction
             onClick={onNext}
-            className="bg-yellow-600 hover:bg-yellow-500 text-black border-transparent shadow-[0_0_20px_rgba(202,138,4,0.3)] flex-1"
+            className="w-full bg-[#FF9500] hover:bg-[#E08300] shadow-[0_4px_20px_rgba(255,149,0,0.35)]"
           >
-            Activate AEGIS Guardian
+            Enable AEGIS Protection
           </PrimaryAction>
+          <SecondaryAction onClick={onBack} className="w-full">
+            Back
+          </SecondaryAction>
         </div>
       </div>
     </OnboardingFrame>
   );
 }
+
+

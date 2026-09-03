@@ -41,8 +41,6 @@ const layoutModifiers = [
 export function generateLayoutLibrary(): DashboardLayoutDefinition[] {
   const library: DashboardLayoutDefinition[] = [];
 
-  let idCounter = 1;
-
   // Curated flagship layouts
   const flagships: DashboardLayoutDefinition[] = [
     {
