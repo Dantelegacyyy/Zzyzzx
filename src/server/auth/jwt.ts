@@ -9,6 +9,8 @@ export interface UserSessionPayload {
   onboardingComplete: boolean;
   emailVerified: boolean;
   school?: string;
+  selectedCourses?: string[];
+  customizedDashboardConfig?: any;
 }
 
 export const AUTH_COOKIE_NAME = 'auth_token';
@@ -41,6 +43,8 @@ export function verifyAuthToken(token: string): UserSessionPayload | null {
       onboardingComplete: Boolean(decoded.onboardingComplete),
       emailVerified: Boolean(decoded.emailVerified),
       school: decoded.school,
+      selectedCourses: decoded.selectedCourses,
+      customizedDashboardConfig: decoded.customizedDashboardConfig,
     };
   } catch (err) {
     return null;

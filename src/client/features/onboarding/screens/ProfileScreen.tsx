@@ -1,118 +1,127 @@
 import React, { useState } from 'react';
-import { OnboardingFrame } from '../components/OnboardingFrame';
-import { PrimaryAction } from '../components/PrimaryAction';
-import { SecondaryAction } from '../components/SecondaryAction';
-import { User, GraduationCap, BookOpen, Calendar, Camera } from 'lucide-react';
+import { User, ChevronDown } from 'lucide-react';
 
 export function ProfileScreen({
   onNext,
   onBack,
 }: {
-  onNext: (data: any) => void;
+  onNext: (data: { name: string; level: string; field: string }) => void;
   onBack: () => void;
 }) {
-  const [name, setName] = useState('');
-  const [level, setLevel] = useState('undergrad');
-  const [field, setField] = useState('');
-  const [gradYear, setGradYear] = useState('2027');
+  const [name, setName] = useState('Alex');
+  const [level, setLevel] = useState('Undergraduate');
+  const [field, setField] = useState('Computer Science');
 
   return (
-    <OnboardingFrame>
-      <div className="flex-1 flex flex-col justify-between py-2 w-full text-center">
-        {/* Header Section with Apple ID Style Avatar */}
-        <div>
-          <div className="relative w-20 h-20 mx-auto mb-3">
-            <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#007AFF] to-[#5856D6] flex items-center justify-center text-white text-2xl font-semibold shadow-md border-2 border-zinc-700">
-              {name ? name.charAt(0).toUpperCase() : <User size={36} />}
-            </div>
-            <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 shadow-sm">
-              <Camera size={12} />
-            </div>
+    <div className="w-full h-full flex flex-col justify-between py-2 text-center text-white bg-[#050B18] rounded-3xl p-6 sm:p-8 shadow-2xl border border-blue-950/40 relative overflow-hidden transition-all">
+      {/* Top Header */}
+      <div className="flex items-center justify-between text-xs font-mono font-bold tracking-wider text-[#38bdf8] uppercase mb-3">
+        <span>05 PROFILE</span>
+      </div>
+
+      {/* Center Hero */}
+      <div className="my-auto flex flex-col items-center py-2 max-w-sm mx-auto w-full">
+        {/* Purple Silhouette Avatar Circle */}
+        <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-purple-500 p-1 shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center mb-4">
+          <div className="w-full h-full rounded-full bg-zinc-950/80 flex items-center justify-center text-white">
+            <User size={38} className="text-purple-300" />
           </div>
-          <h2 className="text-3xl font-bold text-white tracking-tight mb-1">
-            Personal Details
-          </h2>
-          <p className="text-sm text-zinc-400 max-w-xs mx-auto">
-            Your name and academic details will personalize your Cerebro workspace.
-          </p>
         </div>
 
-        {/* Grouped iOS Input Fields Container */}
-        <div className="my-auto py-3">
-          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden divide-y divide-zinc-800/80 text-left">
-            <div className="flex items-center px-4 py-3 gap-3">
-              <span className="text-xs font-semibold text-zinc-400 w-24 shrink-0">
-                Name
-              </span>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Required"
-                className="w-full bg-transparent text-white focus:outline-none text-sm placeholder-zinc-600"
-              />
-            </div>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-6">
+          Tell us about you.
+        </h2>
 
-            <div className="flex items-center px-4 py-3 gap-3">
-              <span className="text-xs font-semibold text-zinc-400 w-24 shrink-0">
-                Academic Level
-              </span>
+        {/* Form Fields */}
+        <div className="w-full space-y-3.5 text-left">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+              Preferred Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Alex"
+              className="w-full py-2.5 px-3.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs sm:text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+              Academic Level
+            </label>
+            <div className="relative">
               <select
                 value={level}
                 onChange={(e) => setLevel(e.target.value)}
-                className="w-full bg-transparent text-white focus:outline-none text-sm"
+                className="w-full py-2.5 px-3.5 rounded-xl bg-[#0B132B] border border-white/10 text-xs sm:text-sm text-white appearance-none focus:outline-none focus:border-blue-500 pr-10"
               >
-                <option value="undergrad" className="bg-zinc-900">Undergraduate</option>
-                <option value="grad" className="bg-zinc-900">Graduate Master</option>
-                <option value="phd" className="bg-zinc-900">PhD / Postdoc</option>
-                <option value="other" className="bg-zinc-900">Other / High School</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Graduate / Master">Graduate / Master</option>
+                <option value="PhD Candidate">PhD Candidate</option>
+                <option value="Postdoc / Researcher">Postdoc / Researcher</option>
+                <option value="High School">High School</option>
               </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
+          </div>
 
-            <div className="flex items-center px-4 py-3 gap-3">
-              <span className="text-xs font-semibold text-zinc-400 w-24 shrink-0">
-                Major / Field
-              </span>
-              <input
-                type="text"
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+              Field of Study
+            </label>
+            <div className="relative">
+              <select
                 value={field}
                 onChange={(e) => setField(e.target.value)}
-                placeholder="e.g. Computer Science"
-                className="w-full bg-transparent text-white focus:outline-none text-sm placeholder-zinc-600"
-              />
-            </div>
-
-            <div className="flex items-center px-4 py-3 gap-3">
-              <span className="text-xs font-semibold text-zinc-400 w-24 shrink-0">
-                Class Year
-              </span>
-              <input
-                type="text"
-                value={gradYear}
-                onChange={(e) => setGradYear(e.target.value)}
-                placeholder="2027"
-                className="w-full bg-transparent text-white focus:outline-none text-sm placeholder-zinc-600"
-              />
+                className="w-full py-2.5 px-3.5 rounded-xl bg-[#0B132B] border border-white/10 text-xs sm:text-sm text-white appearance-none focus:outline-none focus:border-blue-500 pr-10"
+              >
+                <option value="Computer Science">Computer Science</option>
+                <option value="Data Science & AI">Data Science & AI</option>
+                <option value="Electrical & Computer Engineering">Electrical & Computer Engineering</option>
+                <option value="Mathematics & Statistics">Mathematics & Statistics</option>
+                <option value="Biology & Life Sciences">Biology & Life Sciences</option>
+                <option value="Business & Finance">Business & Finance</option>
+                <option value="Psychology">Psychology</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Other">Other / Interdisciplinary</option>
+              </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Bottom Actions */}
-        <div className="w-full space-y-2 pt-2">
-          <PrimaryAction
-            onClick={() => onNext({ name, level, field, gradYear })}
-            className="w-full"
-            disabled={!name.trim()}
+      {/* Bottom Actions */}
+      <div className="w-full space-y-3 pt-4">
+        <div className="flex items-center justify-center gap-3 max-w-xs mx-auto">
+          <button
+            onClick={onBack}
+            className="flex-1 py-3 px-4 rounded-full bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white font-medium text-xs transition-colors"
           >
-            Continue
-          </PrimaryAction>
-          <SecondaryAction onClick={onBack} className="w-full">
             Back
-          </SecondaryAction>
+          </button>
+          <button
+            onClick={() => onNext({ name, level, field })}
+            className="flex-1 py-3 px-6 rounded-full bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white font-bold text-xs shadow-[0_4px_20px_rgba(0,122,255,0.4)] transition-all"
+          >
+            Next
+          </button>
+        </div>
+
+        {/* Pagination Dots */}
+        <div className="flex items-center justify-center gap-1.5 pt-1">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span
+              key={i}
+              className={`h-1.5 rounded-full transition-all ${
+                i === 4 ? 'w-4 bg-blue-400' : 'w-1.5 bg-zinc-700'
+              }`}
+            />
+          ))}
         </div>
       </div>
-    </OnboardingFrame>
+    </div>
   );
 }
-
-

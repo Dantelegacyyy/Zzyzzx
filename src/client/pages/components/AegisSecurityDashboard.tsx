@@ -19,9 +19,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-export function AegisSecurityDashboard() {
+export function AegisSecurityDashboard({
+  isMasterProfile = true,
+}: {
+  isMasterProfile?: boolean;
+}) {
   const [activeTab, setActiveTab] = useState<'security' | 'stability' | 'operational' | 'appstore'>('security');
   const [loading, setLoading] = useState(false);
+  const [authorized, setAuthorized] = useState<boolean>(isMasterProfile);
 
   const [securityData, setSecurityData] = useState<any>(null);
   const [stabilityData, setStabilityData] = useState<any>(null);
@@ -29,6 +34,7 @@ export function AegisSecurityDashboard() {
   const [appStoreData, setAppStoreData] = useState<any>(null);
 
   const runAllAudits = async () => {
+    if (!authorized) return;
     setLoading(true);
     try {
       const [secRes, stabRes, opRes, storeRes] = await Promise.all([
@@ -50,8 +56,39 @@ export function AegisSecurityDashboard() {
   };
 
   useEffect(() => {
-    runAllAudits();
-  }, []);
+    if (authorized) {
+      runAllAudits();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authorized]);
+
+  if (!authorized) {
+    return (
+      <div className="glass-panel rounded-3xl p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-6 border border-rose-500/30">
+        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mx-auto">
+          <Lock size={32} />
+        </div>
+        <div className="space-y-2">
+          <span className="text-xs font-mono font-bold text-rose-400 uppercase tracking-widest bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full">
+            Master Profile Account Required
+          </span>
+          <h2 className="text-2xl font-black text-white">AEGIS Security & Kernel Audit Restricted</h2>
+          <p className="text-slate-300 text-sm leading-relaxed max-w-lg mx-auto">
+            In compliance with Project AEGIS security policy, all live intrusion telemetry, stability suites, and kernel audit logs are restricted exclusively to the Master Profile Account (<strong className="text-rose-300">Titus Cooper</strong>).
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setAuthorized(true);
+            runAllAudits();
+          }}
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 hover:scale-105 active:scale-95 transition-all"
+        >
+          Authenticate as Master Profile
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -62,7 +99,7 @@ export function AegisSecurityDashboard() {
         <div className="relative z-10">
           <div className="flex items-center gap-2 text-cyan-400 text-xs font-semibold tracking-wider uppercase mb-1">
             <ShieldCheck size={16} className="text-cyan-400 animate-pulse" />
-            <span>AEGIS Guardian Security Center</span>
+            <span>AEGIS Guardian Security Center • Master Profile Verified</span>
           </div>
           <h2 className="text-2xl font-bold text-white tracking-tight">Security, Stability & Launch Audit</h2>
           <p className="text-slate-300 text-xs sm:text-sm mt-0.5">

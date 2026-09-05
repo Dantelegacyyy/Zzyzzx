@@ -1,6 +1,5 @@
-import { OnboardingProvider } from './OnboardingProvider';
-import React, { useEffect, useState } from 'react';
-import { useOnboarding } from './OnboardingProvider';
+import React, { useState } from 'react';
+import { useOnboarding, OnboardingProvider } from './OnboardingProvider';
 import { OnboardingFrame } from './components/OnboardingFrame';
 import { HelloScreen } from './screens/HelloScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
@@ -12,46 +11,60 @@ import { CanvasBridgeScreen } from './screens/CanvasBridgeScreen';
 import { CourseSelectionScreen } from './screens/CourseSelectionScreen';
 import { ContinuousSyncScreen } from './screens/ContinuousSyncScreen';
 import { CerebroSignatureScreen } from './screens/CerebroSignatureScreen';
+import { CreativeAIAgentScreen } from './screens/CreativeAIAgentScreen';
 import { WorkspaceBuildScreen } from './screens/WorkspaceBuildScreen';
-import { AegisActivationScreen } from './screens/AegisActivationScreen';
 import { FinalWelcomeScreen } from './screens/FinalWelcomeScreen';
-import { STEPS } from './onboardingMachine';
+import type { OnboardingStep } from './onboardingTypes';
 
 export function OnboardingRouterContent({
   onComplete,
+  onExistingUserComplete,
 }: {
-  onComplete: () => void;
+  onComplete: (user?: any) => void;
+  onExistingUserComplete: (user: any) => void;
 }) {
-  const { currentStep, nextStep, prevStep, setStep, updateData, data } =
+  const { currentStep, nextStep, prevStep, updateData, data } =
     useOnboarding();
-  const [loading, setLoading] = useState(true);
+  const [completing, setCompleting] = useState(false);
 
-  useEffect(() => {
-    // Mocking auth check without Firebase
-    const checkAuth = async () => {
-      setLoading(false);
-      const isComplete = false;
-      if (isComplete) {
-        setStep((prev: import('./onboardingTypes').OnboardingStep) => {
-          if (STEPS.indexOf(prev as any) <= STEPS.indexOf('ACCOUNT')) {
-            return 'PROFILE';
-          }
-          return prev as any;
-        });
-      } else {
-        localStorage.setItem('onboardingStarted', 'true');
-      }
-    };
-    checkAuth();
-  }, [setStep]);
+  const handleFinalEnter = async () => {
+    try {
+      setCompleting(true);
+      const res = await fetch('/api/auth/onboarding-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data?.profileName || 'Alex',
+          school: data?.university || 'Arizona State University — Tempe Campus',
+          selectedCourses: data?.selectedCourses || ['Data Structures', 'Discrete Mathematics', 'Algorithms'],
+          customizedDashboardConfig: data?.customizedDashboardConfig,
+        }),
+      });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#050B14] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+      const responseData = await res.json();
+      const userPayload = {
+        ...(responseData?.user || {}),
+        name: data?.profileName || 'Alex',
+        school: data?.university,
+        onboardingComplete: true,
+        customizedDashboardConfig: data?.customizedDashboardConfig,
+        selectedCourses: data?.selectedCourses,
+      };
+
+      onComplete(userPayload);
+    } catch (err) {
+      console.error('Failed to persist onboarding completion:', err);
+      onComplete({
+        name: data?.profileName || 'Alex',
+        school: data?.university,
+        onboardingComplete: true,
+        customizedDashboardConfig: data?.customizedDashboardConfig,
+        selectedCourses: data?.selectedCourses,
+      });
+    } finally {
+      setCompleting(false);
+    }
+  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -62,7 +75,18 @@ export function OnboardingRouterContent({
       case 'PRIVACY':
         return <PrivacyScreen onNext={nextStep} onBack={prevStep} />;
       case 'ACCOUNT':
-        return <AccountScreen onNext={nextStep} onBack={prevStep} />;
+        return (
+          <AccountScreen
+            onNext={(user) => {
+              if (user?.name) updateData({ profileName: user.name });
+              nextStep();
+            }}
+            onExistingUserComplete={(user) => {
+              onExistingUserComplete(user);
+            }}
+            onBack={prevStep}
+          />
+        );
       case 'PROFILE':
         return (
           <ProfileScreen
@@ -74,35 +98,93 @@ export function OnboardingRouterContent({
           />
         );
       case 'UNIVERSITY':
-        return <UniversityScreen onNext={nextStep} onBack={prevStep} />;
+        return (
+          <UniversityScreen
+            onNext={(school) => {
+              updateData({ university: school });
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        );
       case 'CANVAS_BRIDGE':
         return <CanvasBridgeScreen onNext={nextStep} onBack={prevStep} />;
       case 'COURSES':
-        return <CourseSelectionScreen onNext={nextStep} onBack={prevStep} />;
+        return (
+          <CourseSelectionScreen
+            onNext={(courses) => {
+              updateData({ selectedCourses: courses });
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        );
       case 'CONTINUOUS_SYNC':
         return <ContinuousSyncScreen onNext={nextStep} onBack={prevStep} />;
       case 'CEREBRO_SIGNATURE':
-        return <CerebroSignatureScreen onNext={nextStep} onBack={prevStep} />;
+        return (
+          <CerebroSignatureScreen
+            onNext={(sig) => {
+              if (sig) updateData({ signature: sig });
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        );
+      case 'CREATIVE_AI_SETUP':
+        return (
+          <CreativeAIAgentScreen
+            userName={data?.profileName || 'Alex'}
+            selectedCourses={data?.selectedCourses || ['Data Structures', 'Discrete Mathematics', 'Algorithms']}
+            school={data?.university}
+            onNext={(customizedConfig) => {
+              updateData({ customizedDashboardConfig: customizedConfig });
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        );
       case 'BUILD_WORKSPACE':
         return <WorkspaceBuildScreen onNext={nextStep} />;
-      case 'AEGIS_ACTIVATION':
-        return <AegisActivationScreen onNext={nextStep} onBack={prevStep} />;
       case 'FINAL_WELCOME':
         return (
-          <FinalWelcomeScreen onEnter={onComplete} name={data.profileName} />
+          <FinalWelcomeScreen
+            onEnter={handleFinalEnter}
+            name={data?.profileName || 'Alex'}
+          />
         );
       default:
-        return null;
+        return <HelloScreen onNext={nextStep} />;
     }
   };
 
   return <OnboardingFrame>{renderStep()}</OnboardingFrame>;
 }
 
-export function OnboardingRouter({ onComplete }: { onComplete: () => void }) {
+export function OnboardingRouter({
+  onComplete,
+  onExistingUserComplete,
+  initialStep = 'HELLO',
+  initialUser,
+}: {
+  onComplete: (user?: any) => void;
+  onExistingUserComplete: (user: any) => void;
+  initialStep?: OnboardingStep;
+  initialUser?: any;
+}) {
   return (
-    <OnboardingProvider>
-      <OnboardingRouterContent onComplete={onComplete} />
+    <OnboardingProvider
+      initialStep={initialStep}
+      initialData={{
+        profileName: initialUser?.name || '',
+        university: initialUser?.school || '',
+      }}
+    >
+      <OnboardingRouterContent
+        onComplete={onComplete}
+        onExistingUserComplete={onExistingUserComplete}
+      />
     </OnboardingProvider>
   );
 }
+

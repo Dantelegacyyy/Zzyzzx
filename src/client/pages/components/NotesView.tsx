@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Mic, FileText, Upload, Plus } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useToast } from '../../components/Toast';
 import { NoteSkeleton } from '../../components/Skeletons';
 
 export const NotesView = () => {
+  const navigate = useNavigate();
   const { addToast } = useToast();
   const [notes, setNotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,18 +94,27 @@ export const NotesView = () => {
           <h2 className="text-2xl font-bold text-white tracking-tight">Notes & Ingested Files</h2>
           <p className="text-xs text-slate-400 mt-0.5 font-mono">Persisted in Cloud SQL (PostgreSQL)</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2.5 flex-wrap">
+          <button
+            onClick={() => navigate('/voice-notes')}
+            className="glass-pill px-4 py-2 rounded-xl text-cyan-300 hover:text-white font-medium text-xs transition-all flex items-center gap-1.5 border-cyan-500/30 hover:border-cyan-500/60"
+          >
+            <Mic size={14} className="text-cyan-400" />
+            <span>Record Voice Note</span>
+          </button>
           <button
             onClick={handleCreateNote}
-            className="glass-pill px-4 py-2 rounded-xl text-slate-200 hover:text-white font-medium text-xs transition-all"
+            className="glass-pill px-4 py-2 rounded-xl text-slate-200 hover:text-white font-medium text-xs transition-all flex items-center gap-1.5"
           >
-            + New Note
+            <Plus size={14} />
+            <span>New Note</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="glass-button-primary px-4 py-2 rounded-xl text-white font-semibold text-xs transition-all cursor-pointer"
+            className="glass-button-primary px-4 py-2 rounded-xl text-white font-semibold text-xs transition-all cursor-pointer flex items-center gap-1.5"
           >
-            Upload File
+            <Upload size={14} />
+            <span>Upload File</span>
             <input
               ref={fileInputRef}
               type="file"

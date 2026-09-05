@@ -17,16 +17,18 @@ export interface OnboardingData {
   continuousSync: boolean;
   signature: Partial<CerebroSignatureInput>;
   aegisActivated: boolean;
+  customizedDashboardConfig?: any;
 }
 
 const defaultData: OnboardingData = {
   profileName: '',
   university: '',
   canvasConnected: false,
-  selectedCourses: [],
+  selectedCourses: ['Data Structures', 'Discrete Mathematics', 'Algorithms'],
   continuousSync: true,
   signature: {},
   aegisActivated: false,
+  customizedDashboardConfig: null,
 };
 
 interface OnboardingContextType {
@@ -46,14 +48,19 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(
 interface OnboardingProviderProps {
   children: ReactNode;
   initialStep?: OnboardingStep;
+  initialData?: Partial<OnboardingData>;
 }
 
 export function OnboardingProvider({
   children,
   initialStep = 'HELLO',
+  initialData,
 }: OnboardingProviderProps) {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep);
-  const [data, setData] = useState<OnboardingData>(defaultData);
+  const [data, setData] = useState<OnboardingData>({
+    ...defaultData,
+    ...initialData,
+  });
 
   const nextStep = useCallback(() => {
     setCurrentStep((prev) => getNextStep(prev));

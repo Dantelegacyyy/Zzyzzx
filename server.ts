@@ -4,7 +4,20 @@ import { app } from './src/server/app.js';
 import { createServer as createViteServer } from 'vite';
 
 async function startServer() {
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  const PORT = 3000;
+
+  // Root health check endpoint for Cloud Run health probes
+  app.get('/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      healthy: true,
+      port: 3000,
+      version: '3.0.0-READY',
+      phase: 'Phase 3: Grand Master 3 (The Full Beat)',
+      timestamp: new Date().toISOString(),
+      uptimeSeconds: Math.floor(process.uptime()),
+    });
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -15,8 +28,11 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.use((req, res, next) => {
+      if (req.method === 'GET' && !req.path.startsWith('/api') && req.path !== '/health') {
+        return res.sendFile(path.join(distPath, 'index.html'));
+      }
+      next();
     });
   }
 

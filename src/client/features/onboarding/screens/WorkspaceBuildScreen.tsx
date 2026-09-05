@@ -1,74 +1,121 @@
 import React, { useEffect, useState } from 'react';
-import { OnboardingFrame } from '../components/OnboardingFrame';
-import { Smartphone, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+
+const BUILD_STEPS = [
+  'Applying Sentient Architect layout topology',
+  'Binding enrolled courses to Canvas & Cloud SQL',
+  'Calibrating chromatic luminescence & contrast',
+  'Activating AEGIS Security Observer & audit log',
+];
 
 export function WorkspaceBuildScreen({ onNext }: { onNext: () => void }) {
-  const [completed, setCompleted] = useState(0);
-  const tasks = [
-    'Setting up Cerebro ID',
-    'Configuring system privacy',
-    'Connecting active courses',
-    'Preparing workspace layout',
-    'Finishing setup',
-  ];
+  const [completedIndex, setCompletedIndex] = useState(0);
 
   useEffect(() => {
-    const runTasks = async () => {
-      for (let i = 0; i < tasks.length; i++) {
-        await new Promise((r) => setTimeout(r, 650 + Math.random() * 250));
-        setCompleted(i + 1);
-      }
-      setTimeout(onNext, 700);
-    };
-    runTasks();
-  }, [onNext, tasks.length]);
+    const timer = setInterval(() => {
+      setCompletedIndex((prev) => {
+        if (prev < BUILD_STEPS.length) {
+          return prev + 1;
+        }
+        clearInterval(timer);
+        setTimeout(onNext, 600);
+        return prev;
+      });
+    }, 500);
 
-  const percent = Math.min(100, Math.round((completed / tasks.length) * 100));
+    return () => clearInterval(timer);
+  }, [onNext]);
+
+  const percent = Math.min(
+    100,
+    Math.round(((completedIndex + 1) / (BUILD_STEPS.length + 1)) * 100)
+  );
 
   return (
-    <OnboardingFrame>
-      <div className="flex-1 flex flex-col justify-between py-6 w-full text-center">
-        {/* Apple-style Setup Header */}
-        <div className="my-auto space-y-6">
-          <div className="w-20 h-20 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto shadow-xl">
-            <Smartphone size={40} className="text-white animate-pulse" />
-          </div>
+    <div className="w-full h-full flex flex-col justify-between py-2 text-center text-white bg-[#050B18] rounded-3xl p-6 sm:p-8 shadow-2xl border border-emerald-950/40 relative overflow-hidden transition-all">
+      {/* Top Header */}
+      <div className="flex items-center justify-between text-xs font-mono font-bold tracking-wider text-emerald-400 uppercase mb-2">
+        <span>12 BUILDING YOUR CEREBRO</span>
+      </div>
 
-          <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">
-              Setting Up Your Cerebro...
-            </h2>
-            <p className="text-xs text-zinc-400 font-mono">
-              {percent}% Completed
-            </p>
-          </div>
+      {/* Center Hero */}
+      <div className="my-auto flex flex-col items-center py-2 max-w-sm mx-auto w-full">
+        {/* Glowing Neon Green Progress Gauge */}
+        <div className="relative w-28 h-28 flex items-center justify-center mb-6">
+          <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse" />
 
-          {/* iOS Progress Bar */}
-          <div className="w-64 max-w-xs mx-auto h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-white transition-all duration-300 ease-out rounded-full"
-              style={{ width: `${percent}%` }}
+          {/* Circular SVG Gauge */}
+          <svg className="w-28 h-28 transform -rotate-90" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              stroke="#064E3B"
+              strokeWidth="6"
+              fill="transparent"
             />
-          </div>
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              stroke="#10B981"
+              strokeWidth="6"
+              fill="transparent"
+              strokeDasharray="251.2"
+              strokeDashoffset={251.2 - (251.2 * percent) / 100}
+              strokeLinecap="round"
+              className="transition-all duration-300 ease-out drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+            />
+          </svg>
 
-          {/* Current Step Indicator */}
-          <div className="text-xs text-zinc-400 font-medium h-6">
-            {completed < tasks.length ? (
-              <span>{tasks[completed]}</span>
-            ) : (
-              <span className="text-[#34C759] font-semibold flex items-center justify-center gap-1.5">
-                <Check size={14} className="stroke-[3]" /> Setup Complete
-              </span>
-            )}
+          {/* Percentage in center */}
+          <div className="absolute inset-0 flex items-center justify-center text-2xl font-black text-white font-mono tracking-tight">
+            {percent}%
           </div>
         </div>
 
-        <p className="text-[11px] text-zinc-600">
-          This may take a few moments. Do not close this window.
+        {/* Real Checklist */}
+        <div className="space-y-2.5 w-full text-left max-w-xs mb-6">
+          {BUILD_STEPS.map((step, idx) => {
+            const isDone = idx < completedIndex;
+            return (
+              <div
+                key={idx}
+                className={`flex items-center justify-between text-xs sm:text-sm font-medium transition-opacity ${
+                  isDone ? 'text-slate-200 opacity-100' : 'text-slate-500 opacity-40'
+                }`}
+              >
+                <span>{step}</span>
+                <Check
+                  size={15}
+                  className={`stroke-[3] transition-all ${
+                    isDone ? 'text-emerald-400 scale-100' : 'opacity-0 scale-50'
+                  }`}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Glowing Almost There message */}
+        <p className="text-base font-bold text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.8)] animate-pulse">
+          Almost there...
         </p>
       </div>
-    </OnboardingFrame>
+
+      {/* Pagination Dots */}
+      <div className="w-full pt-4">
+        <div className="flex items-center justify-center gap-1.5">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span
+              key={i}
+              className={`h-1.5 rounded-full transition-all ${
+                i === 3 ? 'w-4 bg-emerald-400' : 'w-1.5 bg-zinc-700'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
-
-

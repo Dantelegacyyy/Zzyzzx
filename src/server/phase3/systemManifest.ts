@@ -1,0 +1,45 @@
+export const PHASE3_SYSTEMS = Object.freeze([
+  'P3-01 Authentication Reconstruction',
+  'P3-02 AEGIS Constitution / Seven Rules',
+  'P3-03 OwnerRoot Control Plane',
+  'P3-04 Durable Security Event Bus',
+  'P3-05 Evidence Ledger',
+  'P3-06 Detection & Confidence Engine',
+  'P3-07 Capability Token System',
+  'P3-08 Response Fleet',
+  'P3-09 Quarantine System',
+  'P3-10 Recovery & Artifact Attestation',
+  'P3-11 Secret & Session Containment',
+  'P3-12 Network Immune Layer',
+  'P3-13 Supply-Chain Security',
+  'P3-14 Continuous Runtime Integrity',
+  'P3-15 Academic Knowledge Graph',
+  'P3-16 Academic Retrieval 2.0',
+  'P3-17 Learning Memory Engine',
+  'P3-18 Unified Academic Planner',
+  'P3-19 Collaboration & Sharing',
+  'P3-20 Operations & Trust Center',
+  'P3-21 Policy Compiler & Registry',
+  'P3-22 Security Digital Twin',
+  'P3-23 Canary Response Engine',
+  'P3-24 OwnerRoot Emergency Safe State',
+  'P3-25 Tamper-Evident Configuration Registry',
+  'P3-26 Privileged Action Ledger',
+  'P3-27 Purple-Team Security Lab',
+  'P3-28 Adaptive Abuse Controls',
+  'P3-29 Data Classification Engine',
+  'P3-30 Privacy Lifecycle Engine',
+  'P3-31 Academic Provenance Graph',
+  'P3-32 Contradiction & Source Conflict Engine',
+  'P3-33 Mastery & Competency Graph',
+  'P3-34 Assessment Intelligence Engine',
+  'P3-35 Academic Workflow Automation',
+  'P3-36 Integration Fabric / Provider SDK',
+  'P3-37 Disaster Recovery & Continuity',
+] as const);
+
+export function assertPhase3ManifestComplete() {
+  if (PHASE3_SYSTEMS.length !== 37) {
+    throw new Error('PHASE3_SYSTEM_MANIFEST_INCOMPLETE');
+  }
+}

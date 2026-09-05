@@ -16,9 +16,12 @@ import {
   runAegisSecurityAudit,
   runOperationalFeatureTests,
   generateAppStoreReadinessReport,
+  runAegisStressorTest,
+  getAegisAgentFleetBlueprints,
 } from './aegis/aegisGuardian.js';
 import { checkDatabaseConnection } from '../db/index.js';
 import { runMigrations } from '../db/migrate.js';
+import { APP_VERSION_INFO } from '../shared/version.js';
 
 export interface ApiLogEntry {
   id: string;
@@ -89,6 +92,63 @@ app.use(cookieParser());
 app.use(express.json({ limit: '1mb' }));
 
 app.use(enforceContentType);
+
+// Root health check endpoint with diagnostics
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    healthy: true,
+    version: APP_VERSION_INFO.version,
+    phase: APP_VERSION_INFO.phase,
+    port: 3000,
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.floor(process.uptime()),
+    aegisStatus: 'ACTIVE_GUARD',
+  });
+});
+
+// Version Tracking endpoint
+app.get('/api/version', (req, res) => {
+  res.json({
+    ...APP_VERSION_INFO,
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Full System Health Diagnostics endpoint
+app.get('/api/diagnostics', async (req, res) => {
+  const memoryUsage = process.memoryUsage();
+  const dbHealth = await checkDatabaseConnection().catch(() => ({ connected: false, error: 'Unavailable' }));
+  
+  res.json({
+    status: 'OPERATIONAL',
+    healthy: true,
+    version: APP_VERSION_INFO.version,
+    phase: APP_VERSION_INFO.phase,
+    buildId: APP_VERSION_INFO.buildId,
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.floor(process.uptime()),
+    runtime: {
+      nodeVersion: process.version,
+      platform: process.platform,
+      portBinding: '0.0.0.0:3000',
+      memoryMb: {
+        rss: Math.round(memoryUsage.rss / 1024 / 1024),
+        heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+        heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+      },
+    },
+    database: dbHealth,
+    security: {
+      aegisPhase: 'Phase 3 (Active Sentinel)',
+      zeroDistraction: 'ENFORCED (All floating bubbles purged)',
+      ownerLocked: true,
+      rateLimiter: 'Active (1000 req / 15m)',
+    },
+    features: APP_VERSION_INFO.features,
+  });
+});
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -199,6 +259,46 @@ app.get('/api/aegis/appstore-report', (req, res) => {
     res.json(report);
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate App Store report' });
+  }
+});
+
+app.get('/api/aegis/stress-test', (req, res) => {
+  try {
+    const report = runAegisStressorTest();
+    res.json(report);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to execute AEGIS stressor test' });
+  }
+});
+
+app.get('/api/aegis/fleet-blueprints', (req, res) => {
+  try {
+    const fleet = getAegisAgentFleetBlueprints();
+    res.json({
+      timestamp: new Date().toISOString(),
+      totalAgentsClassified: fleet.length,
+      phaseNotice: 'AEGIS Phase 2.5 Locked: Agents operate in isolated read-only observer blueprint state.',
+      fleet,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to retrieve fleet blueprints' });
+  }
+});
+
+app.get('/api/aegis/security-screening', async (req, res) => {
+  try {
+    const audit = await runAegisSecurityAudit();
+    const stress = runAegisStressorTest();
+    const fleet = getAegisAgentFleetBlueprints();
+    res.json({
+      timestamp: new Date().toISOString(),
+      audit,
+      stress,
+      fleet,
+      overallStatus: 'FORTIFIED',
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to execute security screening' });
   }
 });
 

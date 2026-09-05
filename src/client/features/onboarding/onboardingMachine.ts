@@ -1,19 +1,19 @@
 import { OnboardingStep } from './onboardingTypes';
 
 export const STEPS: OnboardingStep[] = [
-  'HELLO',
-  'WELCOME',
-  'PRIVACY',
-  'ACCOUNT',
-  'PROFILE',
-  'UNIVERSITY',
-  'CANVAS_BRIDGE',
-  'COURSES',
-  'CONTINUOUS_SYNC',
-  'CEREBRO_SIGNATURE',
-  'BUILD_WORKSPACE',
-  'AEGIS_ACTIVATION',
-  'FINAL_WELCOME',
+  'HELLO',              // 01 HELLO
+  'WELCOME',            // 02 WELCOME TO CEREBRO (All your knowledge. All your courses.)
+  'PRIVACY',            // 03 DATA & PRIVACY
+  'ACCOUNT',            // 04 CREATE ACCOUNT / SIGN IN
+  'PROFILE',            // 05 PROFILE
+  'UNIVERSITY',         // 06 UNIVERSITY
+  'CANVAS_BRIDGE',      // 07 CANVAS PERMISSION BRIDGE
+  'COURSES',            // 08 SELECT YOUR COURSES
+  'CONTINUOUS_SYNC',    // 09 CONTINUOUS SYNC
+  'CEREBRO_SIGNATURE',  // 10 CEREBRO SIGNATURE
+  'CREATIVE_AI_SETUP',  // 11 CREATIVE AI AGENT DASHBOARD SETUP & OPTIMIZATION
+  'BUILD_WORKSPACE',    // 12 BUILDING YOUR CEREBRO
+  'FINAL_WELCOME',      // 13 WELCOME TO CEREBRO
   'COMPLETE',
 ];
 

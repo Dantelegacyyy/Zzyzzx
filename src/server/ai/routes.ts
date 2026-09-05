@@ -1,13 +1,166 @@
 import { Router } from 'express';
-import { requireAuthToken } from '../auth/session.js';
+import { optionalAuthToken } from '../auth/session.js';
 import { GoogleGenAI } from '@google/genai';
 import { ENV } from '../config/env.js';
 import { generateCuratedDashboardConfig } from './curationService.js';
 import { DesignLibraryManager } from './designLibrary.js';
 import { AIDashboardService } from './dashboardService.js';
+import { CreativeAgentService } from './creativeAgentService.js';
+import { DashboardArchitectService } from './dashboardArchitect.js';
 
 export const aiRoutes = Router();
-aiRoutes.use(requireAuthToken);
+aiRoutes.use(optionalAuthToken);
+
+/**
+ * POST /api/ai/architect/synthesize
+ * Sentient Dashboard Architect autonomously evaluates student data and synthesizes layout & theme
+ * (Layout & Theme libraries stay strictly on the backend; users do not browse raw lists)
+ */
+aiRoutes.post('/architect/synthesize', async (req, res) => {
+  try {
+    const {
+      name,
+      userName,
+      selectedCourses,
+      courses,
+      academicFocus,
+      school,
+      vibe,
+      directive,
+      customInstruction,
+    } = req.body;
+
+    const finalCourses = selectedCourses || courses || req.principal?.selectedCourses || [];
+    const finalName = userName || name || req.principal?.name || 'Alex';
+    const finalSchool = school || req.principal?.school || 'Arizona State University';
+
+    const result = await DashboardArchitectService.synthesizeWorkspace({
+      userName: finalName,
+      selectedCourses: Array.isArray(finalCourses) && finalCourses.length > 0
+        ? finalCourses
+        : ['Data Structures', 'Discrete Mathematics', 'Algorithms'],
+      academicFocus,
+      school: finalSchool,
+      vibe,
+      directive,
+      customInstruction,
+    });
+
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    console.error('[Dashboard Architect Synthesize Error]:', error);
+    res.status(500).json({ success: false, error: error.message || 'Architect synthesis failed' });
+  }
+});
+
+/**
+ * POST /api/ai/architect/directive
+ * Allows student to send high-level directives to the Sentient Architect
+ * (e.g. Exam Sprint, Deep Code, Night Shift) which the Architect autonomously fulfills
+ */
+aiRoutes.post('/architect/directive', async (req, res) => {
+  try {
+    const { directive, customInstruction, selectedCourses, userName, school } = req.body;
+
+    const result = await DashboardArchitectService.synthesizeWorkspace({
+      userName: userName || req.principal?.name || 'Alex',
+      selectedCourses: selectedCourses || req.principal?.selectedCourses || ['Data Structures', 'Discrete Mathematics', 'Algorithms'],
+      school: school || req.principal?.school || 'University',
+      directive: directive || 'dir_exam_sprint',
+      customInstruction,
+    });
+
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    console.error('[Dashboard Architect Directive Error]:', error);
+    res.status(500).json({ success: false, error: error.message || 'Directive execution failed' });
+  }
+});
+
+/**
+ * GET /api/ai/architect/status
+ * Telemetry and current state of the Sentient Architect
+ */
+aiRoutes.get('/architect/status', (req, res) => {
+  res.json({
+    success: true,
+    architectName: DashboardArchitectService.ARCHITECT_NAME,
+    architectRole: DashboardArchitectService.ARCHITECT_ROLE,
+    active: true,
+    backendLibrariesSecured: true,
+    supportedDirectives: DashboardArchitectService.DIRECTIVES,
+  });
+});
+
+// Creative AI Agent Synthesis & Customization Endpoint (Backwards-Compatible Alias)
+aiRoutes.post('/creative-agent/synthesize', async (req, res) => {
+  try {
+    const {
+      name,
+      userName,
+      selectedCourses,
+      courses,
+      academicFocus,
+      school,
+      vibe,
+      preferredLayoutId,
+      preferredThemeId,
+      directive,
+      customInstruction,
+    } = req.body;
+
+    const finalCourses = selectedCourses || courses || req.principal?.selectedCourses || [];
+    const finalName = userName || name || req.principal?.name || 'Alex';
+
+    // Route through the Sentient Architect engine
+    const result = await DashboardArchitectService.synthesizeWorkspace({
+      userName: finalName,
+      selectedCourses: Array.isArray(finalCourses) && finalCourses.length > 0
+        ? finalCourses
+        : ['Data Structures', 'Discrete Mathematics', 'Algorithms'],
+      academicFocus,
+      school: school || req.principal?.school,
+      vibe,
+      directive,
+      customInstruction,
+    });
+
+    res.json({
+      success: true,
+      ...result,
+      aiAgentName: result.architectName,
+      aiAgentRole: result.architectRole,
+      aiAgentMessage: result.sentientRationale,
+      thoughtProcess: result.sentientLogs,
+      recommendedLayout: result.activeLayout,
+      recommendedTheme: result.activeTheme,
+    });
+  } catch (error: any) {
+    console.error('[Creative Agent Synthesize Error]:', error);
+    res.status(500).json({ success: false, error: error.message || 'Creative AI Agent synthesis failed' });
+  }
+});
+
+// Creative AI Agent Libraries (Layout Concepts & Color Schemes from Memory)
+aiRoutes.get('/creative-agent/libraries', (req, res) => {
+  try {
+    res.json({
+      success: true,
+      layoutKnowledgeMind: {
+        total: CreativeAgentService.layoutKnowledgeMind.length,
+        flagships: CreativeAgentService.flagshipLayouts,
+        all: CreativeAgentService.layoutKnowledgeMind.slice(0, 30),
+      },
+      colorSchemeKnowledgeMind: {
+        total: CreativeAgentService.colorSchemeKnowledgeMind.length,
+        flagships: CreativeAgentService.flagshipThemes,
+        all: CreativeAgentService.colorSchemeKnowledgeMind.slice(0, 30),
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: 'Failed to query knowledge libraries' });
+  }
+});
 
 aiRoutes.post('/generate-dashboard', async (req, res) => {
   try {
